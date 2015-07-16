@@ -1,5 +1,7 @@
 ﻿using Nito.AsyncEx;
+using Octokit;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Alteridem.GetChanges
@@ -19,18 +21,27 @@ namespace Alteridem.GetChanges
 
             var milestones = await github.GetAllMilestones();
             var issues = await github.GetClosedIssues();
+
+            var noMilestoneIssues = from i in issues where i.Milestone == null select i;
+            DisplayIssuesForMilestone("Issues with no milestone", noMilestoneIssues);
+
             foreach (var milestone in milestones)
             {
-                Console.WriteLine("### {0} - {1}", milestone.Title, milestone.DueOn.HasValue ? milestone.DueOn.Value.ToString() : "");
-                Console.WriteLine();
-
                 var milestoneIssues = from i in issues where i.Milestone != null && i.Milestone.Number == milestone.Number select i;
-                foreach(var issue in milestoneIssues)
-                {
-                    Console.WriteLine(" - {0} {1}", issue.Number, issue.Title);
-                }
-                Console.WriteLine();
+                DisplayIssuesForMilestone(milestone.Title, milestoneIssues);
             }
+        }
+
+        static void DisplayIssuesForMilestone(string milestone, IEnumerable<Issue> issues)
+        {
+            Console.WriteLine("## {0}", milestone);
+            Console.WriteLine();
+
+            foreach (var issue in issues)
+            {
+                Console.WriteLine(" * {0:####} {1}", issue.Number, issue.Title);
+            }
+            Console.WriteLine();
         }
     }
 }
