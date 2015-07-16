@@ -7,7 +7,7 @@
     <ProjectGuid>{54859C70-4E82-457D-8B67-CF9DB47AFD24}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>GetChanges</RootNamespace>
+    <RootNamespace>Alteridem.GetChanges</RootNamespace>
     <AssemblyName>GetChanges</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -72,6 +72,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GitHubApi.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
