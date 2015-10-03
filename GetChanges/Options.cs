@@ -34,5 +34,8 @@ namespace Alteridem.GetChanges
 
         [Option('r', "repo", Required = true, HelpText = "The GitHub repository")]
         public string Repository { get; set; }
+
+        [HelpOption]
+        public string GetUsage() => HelpText.AutoBuild(this, (HelpText current) => HelpText.DefaultParsingErrorsHandler(this, current));
     }
 }

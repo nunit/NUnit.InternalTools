@@ -8,14 +8,23 @@ namespace Alteridem.GetChanges
 {
     class Program
     {
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            AsyncContext.Run(() => MainAsync(args));
+            var options = new Options();
+            if (!CommandLine.Parser.Default.ParseArguments(args, options))
+            {
+                Console.WriteLine(options.GetUsage());
+                return -1;
+            }
+
+            AsyncContext.Run(() => MainAsync(options));
+
             Console.WriteLine("*** Press ENTER to Exit ***");
             Console.ReadLine();
+            return 0;
         }
 
-        static async void MainAsync(string[] args)
+        static async void MainAsync(Options options)
         {
             var github = new GitHubApi("nunit", "nunit");
 
