@@ -10,7 +10,7 @@ namespace Alteridem.GetChanges
     /// </summary>
     internal class GitHubApi
     {
-        GitHubClient _github = new GitHubClient(new ProductHeaderValue("Alteridem.GetChangeset"));
+        GitHubClient _github;
         string _organization;
         string _repository;
 
@@ -23,6 +23,7 @@ namespace Alteridem.GetChanges
         {
             _organization = organization;
             _repository = repository;
+            _github = new GitHubClient(new ProductHeaderValue("Alteridem.GetChangeset"));
         }
 
         public async Task<IReadOnlyList<Milestone>> GetAllMilestones()

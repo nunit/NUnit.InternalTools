@@ -27,7 +27,7 @@ namespace Alteridem.GetChanges
         static async void MainAsync(Options options)
         {
             var github = new GitHubApi(options.Organization, options.Repository);
-
+            
             var milestones = await github.GetAllMilestones();
             var issues = await github.GetClosedIssues();
 
