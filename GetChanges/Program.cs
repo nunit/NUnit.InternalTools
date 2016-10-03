@@ -19,8 +19,8 @@ namespace Alteridem.GetChanges
 
             AsyncContext.Run(() => MainAsync(options));
 
-            Console.WriteLine("*** Press ENTER to Exit ***");
-            Console.ReadLine();
+            //Console.WriteLine("*** Press ENTER to Exit ***");
+            //Console.ReadLine();
             return 0;
         }
 
@@ -31,8 +31,8 @@ namespace Alteridem.GetChanges
             var milestones = await github.GetAllMilestones();
             var issues = await github.GetClosedIssues();
 
-            var noMilestoneIssues = from i in issues where i.Milestone == null select i;
-            DisplayIssuesForMilestone("Issues with no milestone", noMilestoneIssues);
+            //var noMilestoneIssues = from i in issues where i.Milestone == null select i;
+            //DisplayIssuesForMilestone("Issues with no milestone", noMilestoneIssues);
 
             foreach (var milestone in milestones)
             {

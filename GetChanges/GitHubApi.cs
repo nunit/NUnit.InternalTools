@@ -24,6 +24,7 @@ namespace Alteridem.GetChanges
             _organization = organization;
             _repository = repository;
             _github = new GitHubClient(new ProductHeaderValue("Alteridem.GetChangeset"));
+            _github.Credentials = new Credentials(Secrets.TOKEN);
         }
 
         public async Task<IReadOnlyList<Milestone>> GetAllMilestones()
