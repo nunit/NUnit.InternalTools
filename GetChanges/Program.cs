@@ -13,7 +13,6 @@ namespace Alteridem.GetChanges
             var options = new Options();
             if (!CommandLine.Parser.Default.ParseArguments(args, options))
             {
-                Console.WriteLine(options.GetUsage());
                 return -1;
             }
 
