@@ -6,7 +6,7 @@ A minimal projects to list all closed issues in GitHub repository by milestone i
 In order to build, you must set the GitHub authentication token in `TOKEN` in `Secrets.cs`. Do not check this change in. You can hide the changes to `Secrets.cs` from git by running,
 
 ```
-git update-index --assume-unchanged Secrets.cs
+git update-index --assume-unchanged GetChanges/Secrets.cs
 ```
 
 The token is a Personal Access Token which logs you into your GitHub account.
