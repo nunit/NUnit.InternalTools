@@ -33,7 +33,7 @@ namespace Alteridem.GetChanges
             //var noMilestoneIssues = from i in issues where i.Milestone == null select i;
             //DisplayIssuesForMilestone("Issues with no milestone", noMilestoneIssues);
 
-            foreach (var milestone in milestones.Where(m => m.State == ItemState.Open))
+            foreach (var milestone in milestones.Where(m => m.State == ItemState.Open && m.DueOn != null && m.DueOn.Value.Subtract(DateTimeOffset.Now).TotalDays < 30))
             {
                 var milestoneIssues = from i in issues where i.Milestone != null && i.Milestone.Number == milestone.Number select i;
                 DisplayIssuesForMilestone(milestone.Title, milestoneIssues);
