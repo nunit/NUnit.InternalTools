@@ -26,7 +26,7 @@ namespace Alteridem.GetChanges
         static async void MainAsync(Options options)
         {
             var github = new GitHubApi(options.Organization, options.Repository);
-            
+
             var milestones = await github.GetAllMilestones();
             var issues = await github.GetClosedIssues();
 
@@ -36,18 +36,18 @@ namespace Alteridem.GetChanges
             foreach (var milestone in milestones.Where(m => m.State == ItemState.Open && m.DueOn != null && m.DueOn.Value.Subtract(DateTimeOffset.Now).TotalDays < 30))
             {
                 var milestoneIssues = from i in issues where i.Milestone != null && i.Milestone.Number == milestone.Number select i;
-                DisplayIssuesForMilestone(milestone.Title, milestoneIssues);
+                DisplayIssuesForMilestone(options, milestone.Title, milestoneIssues);
             }
         }
 
-        static void DisplayIssuesForMilestone(string milestone, IEnumerable<Issue> issues)
+        static void DisplayIssuesForMilestone(Options options, string milestone, IEnumerable<Issue> issues)
         {
             Console.WriteLine("## {0}", milestone);
             Console.WriteLine();
 
             foreach (var issue in issues)
             {
-                Console.WriteLine(" * {0:####} {1}", issue.Number, issue.Title);
+                Console.WriteLine($" * [{issue.Number:####}](https://github.com/{options.Repository}/{options.Repository}/issues/{issue.Number}) {issue.Title}");
             }
             Console.WriteLine();
         }
