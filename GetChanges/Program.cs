@@ -47,7 +47,10 @@ namespace Alteridem.GetChanges
 
             foreach (var issue in issues)
             {
-                Console.WriteLine($" * [{issue.Number:####}](https://github.com/{options.Repository}/{options.Repository}/issues/{issue.Number}) {issue.Title}");
+                if(options.LinkIssues)
+                    Console.WriteLine($" * [{issue.Number:####}](https://github.com/{options.Repository}/{options.Repository}/issues/{issue.Number}) {issue.Title}");
+                else
+                    Console.WriteLine($" * {issue.Number:####} {issue.Title}");
             }
             Console.WriteLine();
         }
