@@ -27,10 +27,10 @@ namespace Alteridem.GetChanges
             _github.Credentials = new Credentials(Secrets.TOKEN);
         }
 
-        public async Task<IReadOnlyList<Milestone>> GetAllMilestones()
+        public async Task<IReadOnlyList<Milestone>> GetOpenMilestones()
         {
             var request = new MilestoneRequest();
-            request.State = ItemStateFilter.All;
+            request.State = ItemStateFilter.Open;
             request.SortProperty = MilestoneSort.DueDate;
             request.SortDirection = SortDirection.Descending;
             try
@@ -44,12 +44,13 @@ namespace Alteridem.GetChanges
             return new List<Milestone>();
         }
 
-        public async Task<IReadOnlyList<Issue>> GetClosedIssues()
+        public async Task<IReadOnlyList<Issue>> GetClosedIssuesForMilestone(Milestone milestone)
         {
             var request = new RepositoryIssueRequest();
             request.State = ItemStateFilter.Closed;
             request.SortProperty = IssueSort.Created;
             request.SortDirection = SortDirection.Ascending;
+            request.Milestone = milestone.Number.ToString();
             try
             {
                 return await _github.Issue.GetAllForRepository(_organization, _repository, request);
