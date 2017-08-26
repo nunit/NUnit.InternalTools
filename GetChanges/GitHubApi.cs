@@ -30,7 +30,7 @@ namespace Alteridem.GetChanges
         public async Task<IReadOnlyList<Milestone>> GetAllMilestones()
         {
             var request = new MilestoneRequest();
-            request.State = ItemState.All;
+            request.State = ItemStateFilter.All;
             request.SortProperty = MilestoneSort.DueDate;
             request.SortDirection = SortDirection.Descending;
             try
@@ -47,7 +47,7 @@ namespace Alteridem.GetChanges
         public async Task<IReadOnlyList<Issue>> GetClosedIssues()
         {
             var request = new RepositoryIssueRequest();
-            request.State = ItemState.Closed;
+            request.State = ItemStateFilter.Closed;
             request.SortProperty = IssueSort.Created;
             request.SortDirection = SortDirection.Ascending;
             try
