@@ -29,9 +29,6 @@ namespace Alteridem.GetChanges
 
             var milestones = await github.GetOpenMilestones();
 
-            //var noMilestoneIssues = from i in issues where i.Milestone == null select i;
-            //DisplayIssuesForMilestone("Issues with no milestone", noMilestoneIssues);
-
             foreach (var milestone in milestones.Where(m => m.DueOn != null && m.DueOn.Value.Subtract(DateTimeOffset.Now).TotalDays < 30))
             {
                 var milestoneIssues = await github.GetClosedIssuesForMilestone(milestone);
