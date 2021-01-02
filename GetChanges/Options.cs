@@ -1,4 +1,4 @@
-﻿using CommandLine;
+using CommandLine;
 using CommandLine.Text;
 
 namespace Alteridem.GetChanges
@@ -13,8 +13,5 @@ namespace Alteridem.GetChanges
 
         [Option('l', "link", HelpText = "Link issue numbers to the issues")]
         public bool LinkIssues { get; set; }
-
-        [HelpOption]
-        public string GetUsage() => HelpText.AutoBuild(this, (HelpText current) => HelpText.DefaultParsingErrorsHandler(this, current));
     }
 }

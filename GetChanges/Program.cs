@@ -1,29 +1,22 @@
-﻿using Nito.AsyncEx;
+using CommandLine;
 using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace Alteridem.GetChanges
 {
     class Program
     {
-        static int Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var options = new Options();
-            if (!CommandLine.Parser.Default.ParseArguments(args, options))
-            {
-                return -1;
-            }
-
-            AsyncContext.Run(() => MainAsync(options));
-
-            //Console.WriteLine("*** Press ENTER to Exit ***");
-            //Console.ReadLine();
-            return 0;
+            await Parser.Default
+                .ParseArguments<Options>(args)
+                .WithParsedAsync(MainAsync);
         }
 
-        static async void MainAsync(Options options)
+        static async Task MainAsync(Options options)
         {
             var github = new GitHubApi(options.Organization, options.Repository);
 
@@ -43,7 +36,7 @@ namespace Alteridem.GetChanges
 
             foreach (var issue in issues)
             {
-                if(options.LinkIssues)
+                if (options.LinkIssues)
                     Console.WriteLine($"* [{issue.Number:####}](https://github.com/{options.Organization}/{options.Repository}/issues/{issue.Number}) {issue.Title}");
                 else
                     Console.WriteLine($"* {issue.Number:####} {issue.Title}");

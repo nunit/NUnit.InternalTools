@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "GetChanges": {
+      "commandName": "Project",
+      "commandLineArgs": "-o nunit -r nunit -l"
+    }
+  }
+}
