@@ -1,4 +1,4 @@
-﻿using Octokit;
+using Octokit;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,7 +24,7 @@ namespace Alteridem.GetChanges
             _organization = organization;
             _repository = repository;
             _github = new GitHubClient(new ProductHeaderValue("Alteridem.GetChangeset"));
-            _github.Credentials = new Credentials(Secrets.TOKEN);
+            _github.Credentials = new Credentials(Secrets.Token);
         }
 
         public async Task<IReadOnlyList<Milestone>> GetOpenMilestones()

@@ -18,6 +18,12 @@ namespace Alteridem.GetChanges
 
         static async Task MainAsync(Options options)
         {
+            if (!Secrets.Configured || options.Configure)
+            {
+                Configure();
+                return;
+            }
+
             var github = new GitHubApi(options.Organization, options.Repository);
 
             var milestones = await github.GetOpenMilestones();
@@ -42,6 +48,12 @@ namespace Alteridem.GetChanges
                     Console.WriteLine($"* {issue.Number:####} {issue.Title}");
             }
             Console.WriteLine();
+        }
+
+        static void Configure()
+        {
+            Console.Write("Enter your GitHub API Token (See README.md): ");
+            Secrets.Token = Console.ReadLine();
         }
     }
 }
