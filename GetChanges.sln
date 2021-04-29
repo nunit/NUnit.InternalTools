@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.22823.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetChanges", "GetChanges\GetChanges.csproj", "{54859C70-4E82-457D-8B67-CF9DB47AFD24}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GetChanges", "GetChanges\GetChanges.csproj", "{54859C70-4E82-457D-8B67-CF9DB47AFD24}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{13DFF4A5-E490-4EC9-AA94-9CF236E3D291}"
 	ProjectSection(SolutionItems) = preProject
@@ -11,6 +11,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		LICENSE = LICENSE
 		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{A964032E-D5A7-4978-B682-E95394D6C01D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{7D20F7B8-5291-44EB-AF9E-0DAEF733CE37}"
+	ProjectSection(SolutionItems) = preProject
+		continuous_integration.yml = continuous_integration.yml
 	EndProjectSection
 EndProject
 Global
@@ -26,5 +33,11 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7D20F7B8-5291-44EB-AF9E-0DAEF733CE37} = {A964032E-D5A7-4978-B682-E95394D6C01D}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {62010E50-1BAC-41D2-8965-A819740EBA60}
 	EndGlobalSection
 EndGlobal
