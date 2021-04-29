@@ -4,8 +4,33 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net50</TargetFramework>
     <RootNamespace>Alteridem.GetChanges</RootNamespace>
-    <AssemblyName>GetChanges</AssemblyName>
+    <AssemblyName>getchanges</AssemblyName>
+    <Authors>Rob Prouse</Authors>
+    <Company>Alteridem Consulting</Company>
+    <Product>Guppi command line utility</Product>
+    <Copyright>Copyright (c) 2021 Rob Prouse</Copyright>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageProjectUrl>https://github.com/rprouse/GetChanges</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/rprouse/GetChanges</RepositoryUrl>
+    <PackageId>dotnet-getchanges</PackageId>
+    <Version>1.0.1</Version>
+    <PackAsTool>true</PackAsTool>
+    <ToolCommandName>getchanges</ToolCommandName>
+    <PackageOutputPath>./nupkg</PackageOutputPath>
+    <NeutralLanguage>en-CA</NeutralLanguage>
+    <RepositoryType>git</RepositoryType>
+    <Description>A minimal project to list all closed issues in GitHub repository by milestone in Markdown format. Right now, it is designed to create the changelist for NUnit.</Description>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="nupkg\**" />
+    <EmbeddedResource Remove="nupkg\**" />
+    <None Remove="nupkg\**" />
+    <None Include="..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
