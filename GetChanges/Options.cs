@@ -1,5 +1,4 @@
 using CommandLine;
-using CommandLine.Text;
 
 namespace Alteridem.GetChanges
 {
@@ -13,5 +12,8 @@ namespace Alteridem.GetChanges
 
         [Option('l', "link", HelpText = "Link issue numbers to the issues")]
         public bool LinkIssues { get; set; }
+
+        [Option('c', "configure", HelpText = "Configure the application")]
+        public bool Configure { get; set; }
     }
 }
