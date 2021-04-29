@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://github.com/rprouse/GetChanges</PackageProjectUrl>
     <RepositoryUrl>https://github.com/rprouse/GetChanges</RepositoryUrl>
     <PackageId>dotnet-getchanges</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>getchanges</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>

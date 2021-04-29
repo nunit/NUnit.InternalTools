@@ -20,7 +20,7 @@ namespace Alteridem.GetChanges
         {
             if (!Secrets.Configured || options.Configure)
             {
-                Configure();
+                Secrets.Configure();
                 return;
             }
 
@@ -48,12 +48,6 @@ namespace Alteridem.GetChanges
                     Console.WriteLine($"* {issue.Number:####} {issue.Title}");
             }
             Console.WriteLine();
-        }
-
-        static void Configure()
-        {
-            Console.Write("Enter your GitHub API Token (See README.md): ");
-            Secrets.Token = Console.ReadLine();
         }
     }
 }
