@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{A964
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{7D20F7B8-5291-44EB-AF9E-0DAEF733CE37}"
 	ProjectSection(SolutionItems) = preProject
-		continuous_integration.yml = continuous_integration.yml
+		.github\workflows\continuous_integration.yml = .github\workflows\continuous_integration.yml
 	EndProjectSection
 EndProject
 Global
