@@ -5,49 +5,124 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Alteridem.GetChanges
+namespace Alteridem.GetChanges;
+
+class Program
 {
-    class Program
+    static async Task Main(string[] args)
     {
-        static async Task Main(string[] args)
+        await Parser.Default
+            .ParseArguments<Options>(args)
+            .WithParsedAsync(MainAsync);
+    }
+
+    static async Task MainAsync(Options options)
+    {
+        if (!Secrets.Configured || options.Configure)
         {
-            await Parser.Default
-                .ParseArguments<Options>(args)
-                .WithParsedAsync(MainAsync);
+            Secrets.Configure();
+            return;
         }
 
-        static async Task MainAsync(Options options)
+        var github = new GitHubApi(options.Organization, options.Repository);
+        var milestones = await github.GetOpenMilestones();
+
+        if (options.Milestone.Length == 0) // No specific milestone, so let us run through the most current open milestones
         {
-            if (!Secrets.Configured || options.Configure)
+            foreach (var milestone in milestones.Where(m =>
+                         m.DueOn != null && m.DueOn.Value.Subtract(DateTimeOffset.Now).TotalDays < 30))
             {
-                Secrets.Configure();
-                return;
+                await LoadAndDisplayIssues(milestone);
             }
-
-            var github = new GitHubApi(options.Organization, options.Repository);
-
-            var milestones = await github.GetOpenMilestones();
-
-            foreach (var milestone in milestones.Where(m => m.DueOn != null && m.DueOn.Value.Subtract(DateTimeOffset.Now).TotalDays < 30))
+        }
+        else // We have a specific milestone, hopefully
+        {
+            var milestone = milestones.FirstOrDefault(m => m.Title == options.Milestone);
+            if (milestone != null)
             {
-                var milestoneIssues = await github.GetClosedIssuesForMilestone(milestone);
-                DisplayIssuesForMilestone(options, milestone.Title, milestoneIssues);
+                await LoadAndDisplayIssues(milestone);
+            }
+            else
+            {
+                Console.WriteLine("Milestone {0} not found", options.Milestone);
             }
         }
 
-        static void DisplayIssuesForMilestone(Options options, string milestone, IEnumerable<Issue> issues)
+        async Task LoadAndDisplayIssues(Milestone milestone)
         {
-            Console.WriteLine("## {0}", milestone);
-            Console.WriteLine();
-
-            foreach (var issue in issues)
-            {
-                if (options.LinkIssues)
-                    Console.WriteLine($"* [{issue.Number:####}](https://github.com/{options.Organization}/{options.Repository}/issues/{issue.Number}) {issue.Title}");
-                else
-                    Console.WriteLine($"* {issue.Number:####} {issue.Title}");
-            }
-            Console.WriteLine();
+            var milestoneIssues = await github.GetClosedIssuesForMilestone(milestone);
+            DisplayIssuesForMilestone(options, milestone.Title, milestoneIssues);
         }
+    }
+
+    
+
+    static void DisplayIssuesForMilestone(Options options, string milestone, IEnumerable<Issue> issues)
+    {
+        Console.WriteLine("## {0}", milestone);
+        Console.WriteLine();
+        var closedDoneIssues = issues.Where(o => o.ClosedDone() && o.PullRequest==null)
+            .OrderByDescending(o => o.Number)
+            .ToList();
+        var processedIssues = new List<Issue>();
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Enhancements", "is:enhancement");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Features","is:feature");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Bugs","is:bug");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Refactorings","is:refactor");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Internals", "is:internal");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Deprecations", "is:deprecation");
+        // Write of the rest
+        Console.WriteLine("### Others");
+        Console.WriteLine();
+        var rest = closedDoneIssues.Except(processedIssues).OrderByDescending(o => o.Number).ToList();
+        DisplayIssuesWithLabel(rest, "", options);
+        //var prs = issues.Where(o => o.ClosedDone() && o.PullRequest != null)
+        //    .OrderByDescending(o => o.Number)
+        //    .ToList();
+
+    }
+
+    private static void DisplaySection(Options options, List<Issue> processedIssues, IEnumerable<Issue> closedDoneIssues,string header,string searchTerm)
+    {
+        Console.WriteLine(header);
+        Console.WriteLine();
+        processedIssues.AddRange(DisplayIssuesWithLabel(closedDoneIssues, searchTerm, options));
+        Console.WriteLine();
+    }
+
+    static IEnumerable<Issue> DisplayIssuesWithLabel(IEnumerable<Issue> issues, string label,Options options)
+    {
+        var list = issues.Where(o => o.LabelStartsWith(label)).ToList();
+        foreach (var issue in list)
+        {
+            if (options.LinkIssues)
+                Console.WriteLine($"* [{issue.Number:####}](https://github.com/{options.Organization}/{options.Repository}/issues/{issue.Number}) {issue.Title}");
+            else
+                Console.WriteLine($"* {issue.Number:####} {issue.Title}");
+        }
+        return list;
+    }
+   
+}
+
+public static class Extensions
+{
+    public static bool LabelExist(this Issue issue, string labelName)
+    {
+        return issue.Labels.FirstOrDefault(l => l.Name == labelName) != null;
+    }
+
+    public static bool LabelStartsWith(this Issue issue, string labelName)
+    {
+        return issue.Labels.FirstOrDefault(l => l.Name.StartsWith(labelName)) != null;
+    }
+
+    /// <summary>
+    /// Issue is either not labeled with closed: or is labeled with closed:done
+    /// </summary>
+    public static bool ClosedDone(this Issue issue)
+    {
+        var label = issue.Labels.FirstOrDefault(l => l.Name.StartsWith("closed:"));
+        return label == null || label.Name.EndsWith("done");
     }
 }

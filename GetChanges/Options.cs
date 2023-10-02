@@ -15,5 +15,8 @@ namespace Alteridem.GetChanges
 
         [Option('c', "configure", HelpText = "Configure the application")]
         public bool Configure { get; set; }
+
+        [Option('m', "milestone", HelpText = "For this given milestone")]
+        public string Milestone { get; set; } = "";
     }
 }

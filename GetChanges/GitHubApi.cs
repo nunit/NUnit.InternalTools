@@ -10,9 +10,9 @@ namespace Alteridem.GetChanges
     /// </summary>
     internal class GitHubApi
     {
-        GitHubClient _github;
-        string _organization;
-        string _repository;
+        private readonly GitHubClient _github;
+        private readonly string _organization;
+        private readonly string _repository;
 
         /// <summary>
         /// Constructs a class for talking to GitHub
@@ -23,16 +23,20 @@ namespace Alteridem.GetChanges
         {
             _organization = organization;
             _repository = repository;
-            _github = new GitHubClient(new ProductHeaderValue("Alteridem.GetChangeset"));
-            _github.Credentials = new Credentials(Secrets.Token);
+            _github = new GitHubClient(new ProductHeaderValue("Alteridem.GetChangeset"))
+            {
+                Credentials = new Credentials(Secrets.Token)
+            };
         }
 
         public async Task<IReadOnlyList<Milestone>> GetOpenMilestones()
         {
-            var request = new MilestoneRequest();
-            request.State = ItemStateFilter.Open;
-            request.SortProperty = MilestoneSort.DueDate;
-            request.SortDirection = SortDirection.Descending;
+            var request = new MilestoneRequest
+            {
+                State = ItemStateFilter.Open,
+                SortProperty = MilestoneSort.DueDate,
+                SortDirection = SortDirection.Descending
+            };
             try
             {
                 return await _github.Issue.Milestone.GetAllForRepository(_organization, _repository, request);
@@ -46,11 +50,13 @@ namespace Alteridem.GetChanges
 
         public async Task<IReadOnlyList<Issue>> GetClosedIssuesForMilestone(Milestone milestone)
         {
-            var request = new RepositoryIssueRequest();
-            request.State = ItemStateFilter.Closed;
-            request.SortProperty = IssueSort.Created;
-            request.SortDirection = SortDirection.Ascending;
-            request.Milestone = milestone.Number.ToString();
+            var request = new RepositoryIssueRequest
+            {
+                State = ItemStateFilter.Closed,
+                SortProperty = IssueSort.Created,
+                SortDirection = SortDirection.Descending,
+                Milestone = milestone.Number.ToString()
+            };
             try
             {
                 return await _github.Issue.GetAllForRepository(_organization, _repository, request);

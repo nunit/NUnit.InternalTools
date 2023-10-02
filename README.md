@@ -74,3 +74,11 @@ In order to run, you must set the GitHub authentication token. This token is a P
 6. If running for the first time, the program will prompt for the token, otherwise to update the token, run with `--configure`
 
 If you ever want to revoke the token, visit the GitHub Applications settings page and click Delete next to the key you wish to remove.
+
+## Running on source code repo
+
+If you prefer to just run it off the source code repo, you can do so by cloning the repo and running the following command line from the project folder,
+for e.g. milestone 4.0:
+
+`bin\Release\net7.0\getchanges.exe -o nunit -r nunit -l -m 4.0 > changes4.0.md`
+
