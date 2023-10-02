@@ -76,6 +76,7 @@ class Program
         Console.WriteLine();
         var rest = closedDoneIssues.Except(processedIssues).OrderByDescending(o => o.Number).ToList();
         DisplayIssuesWithLabel(rest, "", options);
+        DisplaySection(options, processedIssues, closedDoneIssues, "### The following issues above is marked as breaking changes", "Breaking");
         //var prs = issues.Where(o => o.ClosedDone() && o.PullRequest != null)
         //    .OrderByDescending(o => o.Number)
         //    .ToList();

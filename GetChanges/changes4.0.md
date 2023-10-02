@@ -3,6 +3,7 @@
 ### Enhancements
 
 * [4421](https://github.com/nunit/nunit/issues/4421) Add support for native .NET-6.0 target 
+* [4355](https://github.com/nunit/nunit/issues/4355) Allow Is.AnyOf to be called with arrays or other collections
 * [4149](https://github.com/nunit/nunit/issues/4149) Distribute optimized framework builds with easy debugging
 * [4144](https://github.com/nunit/nunit/issues/4144) Stderr/Console.Error will hold back unicode escaped log messages
 * [4101](https://github.com/nunit/nunit/issues/4101) Expose ExpectedResult to the TestContext
@@ -13,7 +14,6 @@
 * [3899](https://github.com/nunit/nunit/issues/3899) Allow randomizing 'Guid' test arguments with [Random]
 * [3866](https://github.com/nunit/nunit/issues/3866) SupportedOSPlatform
 * [3856](https://github.com/nunit/nunit/issues/3856) Theories in nested Testfixtures
-* [3789](https://github.com/nunit/nunit/issues/3789) Change copyright header on files
 * [3718](https://github.com/nunit/nunit/issues/3718) Improve readability of "assert failed" message for DictionaryContainsKeyValuePairConstraint WithValue()
 * [3457](https://github.com/nunit/nunit/issues/3457) Add DefaultConstraint
 * [3432](https://github.com/nunit/nunit/issues/3432) Assert.That is blocking and might lead to deadlock when used with WCF.
@@ -51,12 +51,14 @@
 
 ### Internals
 
+* [4331](https://github.com/nunit/nunit/issues/4331) Add testing to "Accumulate further failures if any on AssertMultiple instead of throwing"
 * [4078](https://github.com/nunit/nunit/issues/4078) THREAD_ABORT not properly set
 * [4075](https://github.com/nunit/nunit/issues/4075) Remove unnecessary allocations in NUnitEqualityComparer
 * [4065](https://github.com/nunit/nunit/issues/4065) Use pattern matching in the comparers
 * [4055](https://github.com/nunit/nunit/issues/4055) Use static Regex.IsMatch in ValueMatchFilter to take advantage of caching
 * [4049](https://github.com/nunit/nunit/issues/4049) Simplify property retrieval in DefaultTestAssemblyBuilder.Build()
 * [3935](https://github.com/nunit/nunit/issues/3935) `Numerics.IsFixedPointNumeric` should return false for decimals
+* [3789](https://github.com/nunit/nunit/issues/3789) Change copyright header on files
 * [3764](https://github.com/nunit/nunit/issues/3764) Switch to the dotnet tool version of Cake
 * [2485](https://github.com/nunit/nunit/issues/2485) Remove\Trim copyright on individual files
 
@@ -72,8 +74,6 @@
 ### Others
 
 * [4431](https://github.com/nunit/nunit/issues/4431) Improving error message handling and performing assert consolidation
-* [4355](https://github.com/nunit/nunit/issues/4355) Allow Is.AnyOf to be called with arrays or other collections
-* [4331](https://github.com/nunit/nunit/issues/4331) Add testing to "Accumulate further failures if any on AssertMultiple instead of throwing"
 * [4112](https://github.com/nunit/nunit/issues/4112) Update documentation to clarify passing parameters to test cases
 * [3989](https://github.com/nunit/nunit/issues/3989) Revisit build documentation relating to IDEs
 * [3869](https://github.com/nunit/nunit/issues/3869) Copyright notices for third-party code
@@ -82,3 +82,9 @@
 * [3376](https://github.com/nunit/nunit/issues/3376) Nullable Reference Types annotations
 * [3301](https://github.com/nunit/nunit/issues/3301) [HandleProcessCorruptedStateExceptions] has no effect unless we disable partial trust
 * [3132](https://github.com/nunit/nunit/issues/3132) Remove AssertionHelper and AssertionHelperTests
+
+### The following issues above is marked as breaking changes
+
+* [4416](https://github.com/nunit/nunit/issues/4416) Move classic asserts into its own project 
+* [4415](https://github.com/nunit/nunit/issues/4415) Remove use of params for messages
+
