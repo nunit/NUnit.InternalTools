@@ -67,5 +67,29 @@ namespace Alteridem.GetChanges
             }
             return new List<Issue>();
         }
+
+        /// <summary>
+        /// Actually gets either pull requests or issues by id
+        /// </summary>
+        public async Task<Issue> GetIssueOrPulLRequest(int id)
+        {
+            try
+            {
+                var pr = await _github.Issue.Get(_organization, _repository, id);
+                return pr;
+
+            }
+            catch (ApiException e)
+            {
+                Console.WriteLine($"Could not get Id={id}, exception: {e}");
+                throw;
+            }
+        }
+
+        public async Task<User> GetUser(string login)
+        {
+            var user = await _github.User.Get(login);
+            return user;
+        }
     }
 }

@@ -40,5 +40,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  
+  <ItemGroup>
+    <None Update="IssuesPR.4.0.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 
 </Project>
