@@ -86,6 +86,8 @@ class Program
         var closedDoneIssues = issues.Where(o => o.ClosedDone() && o.PullRequest==null)
             .OrderByDescending(o => o.Number)
             .ToList();
+        Console.WriteLine($"Total number of issues fixed in this release is : {closedDoneIssues.Count}");
+        Console.WriteLine();
         var processedIssues = new List<Issue>();
         DisplaySection(options, processedIssues, closedDoneIssues, "### Enhancements", "is:enhancement");
         // DisplaySection(options, processedIssues, closedDoneIssues, "### New features","is:feature");
