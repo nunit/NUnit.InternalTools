@@ -1,9 +1,11 @@
 ## 4.0
 
-Total number of issues fixed in this release is : 82
+Total number of issues fixed in this release is : 97
 
 ### Enhancements
 
+* [4521](https://github.com/nunit/nunit/issues/4521) Proposal: Async test case sources . Fixed by team [PR 4389](https://github.com/nunit/nunit/pull/4389)
+* [4489](https://github.com/nunit/nunit/issues/4489) Use buffer pooling when calculating partition filters. Fixed by team [PR 4500](https://github.com/nunit/nunit/pull/4500)
 * [4433](https://github.com/nunit/nunit/issues/4433) Add string syntax attributes (.NET 7+). Thanks to [Michael Render](https://github.com/RenderMichael) for [PR 4425](https://github.com/nunit/nunit/pull/4425)
 * [4431](https://github.com/nunit/nunit/issues/4431) Improving error message handling and performing assert consolidation. Fixed by team [PR 4430](https://github.com/nunit/nunit/pull/4430)
 * [4421](https://github.com/nunit/nunit/issues/4421) Add support for native .NET-6.0 target . Fixed by team [PR 4431](https://github.com/nunit/nunit/pull/4431)
@@ -26,9 +28,14 @@ Total number of issues fixed in this release is : 82
 * [3457](https://github.com/nunit/nunit/issues/3457) Add DefaultConstraint. Thanks to [Oleksandr Liakhevych](https://github.com/Dreamescaper) for [PR 3781](https://github.com/nunit/nunit/pull/3781)
 * [3432](https://github.com/nunit/nunit/issues/3432) Assert.That is blocking and might lead to deadlock when used with WCF.. Thanks to [Gavin Lambert](https://github.com/uecasm) for [PR 4322](https://github.com/nunit/nunit/pull/4322)
 * [2843](https://github.com/nunit/nunit/issues/2843) Replacing ThrowsAsync with a composable async alternative. Thanks to [Gavin Lambert](https://github.com/uecasm) for [PR 4322](https://github.com/nunit/nunit/pull/4322)
+* [1459](https://github.com/nunit/nunit/issues/1459) Support for params keyword in parameterized test fixtures. Thanks to [](https://github.com/Shiney) for [PR 4478](https://github.com/nunit/nunit/pull/4478)
 
 ### Bug fixes
 
+* [4522](https://github.com/nunit/nunit/issues/4522) Missing stack trace when exception occurs during OneTimeSetUp #2466. Fixed by team [PR 4469](https://github.com/nunit/nunit/pull/4469)
+* [4491](https://github.com/nunit/nunit/issues/4491) NUnit 4.0 fails when [Repeat] is present and test passes. Fixed by team [PR 4517](https://github.com/nunit/nunit/pull/4517)
+* [4484](https://github.com/nunit/nunit/issues/4484) String not-regex constraint succeeds non-`string` actual value. Thanks to [Michael Render](https://github.com/RenderMichael) for [PR 4492](https://github.com/nunit/nunit/pull/4492)
+* [4450](https://github.com/nunit/nunit/issues/4450) Missing comparison failure details for EqualTo when comparing two collection. Thanks to [Ashish Dawale](https://github.com/ashishdawale20) for [PR 4502](https://github.com/nunit/nunit/pull/4502)
 * [4423](https://github.com/nunit/nunit/issues/4423) Chaining multiple collection asserts with index. Thanks to [Daniel Waechtler](https://github.com/crabstars) for [PR 4480](https://github.com/nunit/nunit/pull/4480)
 * [4400](https://github.com/nunit/nunit/issues/4400) Within throws ArgumentException if null value is involved. Thanks to [Ashish Dawale](https://github.com/ashishdawale20) for [PR 4482](https://github.com/nunit/nunit/pull/4482)
 * [4319](https://github.com/nunit/nunit/issues/4319) TextRunner accidentally disposes System.Out. Thanks to [Norm Johanson](https://github.com/normj) for [PR 4317](https://github.com/nunit/nunit/pull/4317)
@@ -48,8 +55,10 @@ Total number of issues fixed in this release is : 82
 * [3811](https://github.com/nunit/nunit/issues/3811) Incorrect summary comments on Warn.If overloads. Fixed by team [PR 3845](https://github.com/nunit/nunit/pull/3845)
 * [3735](https://github.com/nunit/nunit/issues/3735) Parallelizable TestFixtureSource with TestFixtureData not running in parallel. Thanks to [Julien Richard](https://github.com/jairbubbles) for [PR 4099](https://github.com/nunit/nunit/pull/4099)
 * [3449](https://github.com/nunit/nunit/issues/3449) Assert.AreEqual overloads for nullable double are not useful. Thanks to [Anton Ashmarin](https://github.com/Antash) for [PR 3780](https://github.com/nunit/nunit/pull/3780)
+* [3274](https://github.com/nunit/nunit/issues/3274) Overriden tests are not discovered in NUnit 3.12.0. Fixed by team [PR 4490](https://github.com/nunit/nunit/pull/4490)
 * [3215](https://github.com/nunit/nunit/issues/3215) Better error message for generic test where type parameter cannot be determined. Thanks to [Ove Bastiansen](https://github.com/ovebastiansen) for [PR 4382](https://github.com/nunit/nunit/pull/4382)
 * [2870](https://github.com/nunit/nunit/issues/2870) CollectionTally (EquivalentTo) should throw for non-transitive comparisons. Thanks to [Russell Smith](https://github.com/mr-russ) for [PR 4312](https://github.com/nunit/nunit/pull/4312)
+* [2841](https://github.com/nunit/nunit/issues/2841) DelayedConstraint calls delegate twice. 
 * [2436](https://github.com/nunit/nunit/issues/2436) Properties on System.Type cannot be used with either property constraint. Fixed by team [PR 4259](https://github.com/nunit/nunit/pull/4259)
 * [1428](https://github.com/nunit/nunit/issues/1428) NUnitLite package always installs both Program.cs and Program.vb. Fixed by team [PR 3952](https://github.com/nunit/nunit/pull/3952)
 
@@ -61,6 +70,7 @@ Total number of issues fixed in this release is : 82
 * [4378](https://github.com/nunit/nunit/issues/4378) Update code base to use 'is (not) null' consistently. Fixed by team [PR 4379](https://github.com/nunit/nunit/pull/4379)
 * [4376](https://github.com/nunit/nunit/issues/4376) Update code base to explicitly specify accessibility. Fixed by team [PR 4377](https://github.com/nunit/nunit/pull/4377)
 * [4364](https://github.com/nunit/nunit/issues/4364) Add NUnit.Analyzer to our test projects. Fixed by team [PR 4366](https://github.com/nunit/nunit/pull/4366)
+* [4111](https://github.com/nunit/nunit/issues/4111) `Is.Empty` constraint on complex collections might hide bugs. Thanks to [Felix Krîner](https://github.com/Crown0815) for [PR 4120](https://github.com/nunit/nunit/pull/4120)
 * [4051](https://github.com/nunit/nunit/issues/4051) Update codebase to use Array.Empty<T>. Thanks to [Marcin Jedrzejek](https://github.com/mjedrzejek) for [PR 4127](https://github.com/nunit/nunit/pull/4127)
 * [3932](https://github.com/nunit/nunit/issues/3932) Make `Numerics` class internal. Thanks to [TillW](https://github.com/x789) for [PR 4205](https://github.com/nunit/nunit/pull/4205)
 
@@ -70,6 +80,7 @@ Total number of issues fixed in this release is : 82
 * [4331](https://github.com/nunit/nunit/issues/4331) Add testing to "Accumulate further failures if any on AssertMultiple instead of throwing". Thanks to [Samuel Delarosbil](https://github.com/sdelarosbil) for [PR 4313](https://github.com/nunit/nunit/pull/4313)
 * [4078](https://github.com/nunit/nunit/issues/4078) THREAD_ABORT not properly set. Fixed by team [PR 4079](https://github.com/nunit/nunit/pull/4079)
 * [4075](https://github.com/nunit/nunit/issues/4075) Remove unnecessary allocations in NUnitEqualityComparer. Fixed by team [PR 4076](https://github.com/nunit/nunit/pull/4076)
+* [4072](https://github.com/nunit/nunit/issues/4072) Use pattern matching in Constraints to avoid unecessary casts. Fixed by team [PR 4073](https://github.com/nunit/nunit/pull/4073)
 * [4065](https://github.com/nunit/nunit/issues/4065) Use pattern matching in the comparers. Fixed by team [PR 4066](https://github.com/nunit/nunit/pull/4066)
 * [4055](https://github.com/nunit/nunit/issues/4055) Use static Regex.IsMatch in ValueMatchFilter to take advantage of caching. Fixed by team [PR 4056](https://github.com/nunit/nunit/pull/4056)
 * [4049](https://github.com/nunit/nunit/issues/4049) Simplify property retrieval in DefaultTestAssemblyBuilder.Build(). Thanks to [Scott Buchanan](https://github.com/Phyrik) for [PR 4054](https://github.com/nunit/nunit/pull/4054)
@@ -87,16 +98,18 @@ Total number of issues fixed in this release is : 82
 * [3758](https://github.com/nunit/nunit/issues/3758) Drop .NET 3.5 Build Targets. Fixed by team [PR 3760](https://github.com/nunit/nunit/pull/3760)
 * [3708](https://github.com/nunit/nunit/issues/3708) Drop .NET 4.0 Build Target. Fixed by team [PR 3760](https://github.com/nunit/nunit/pull/3760)
 * [3410](https://github.com/nunit/nunit/issues/3410) Consider deprecating NUnitEqualityComparer.AreEqual optional bool parameter. Thanks to [TillW](https://github.com/x789) for [PR 3960](https://github.com/nunit/nunit/pull/3960)
+* [3132](https://github.com/nunit/nunit/issues/3132) Remove AssertionHelper and AssertionHelperTests. Fixed by team [PR 3836](https://github.com/nunit/nunit/pull/3836)
 
 ### Others
 
+* [4504](https://github.com/nunit/nunit/issues/4504) Remove appveyor build. 
 * [4112](https://github.com/nunit/nunit/issues/4112) Update documentation to clarify passing parameters to test cases. Thanks to [Aaron Franke](https://github.com/aaronfranke) for [PR 4114](https://github.com/nunit/nunit/pull/4114)
 * [3989](https://github.com/nunit/nunit/issues/3989) Revisit build documentation relating to IDEs. Fixed by team [PR 4050](https://github.com/nunit/nunit/pull/4050)
 * [3869](https://github.com/nunit/nunit/issues/3869) Copyright notices for third-party code. Thanks to [Lennart BrÅggemann](https://github.com/lennartb-) for [PR 4444](https://github.com/nunit/nunit/pull/4444)
 * [3812](https://github.com/nunit/nunit/issues/3812) Add GitHub Actions. Fixed by team [PR 3819](https://github.com/nunit/nunit/pull/3819)
+* [3798](https://github.com/nunit/nunit/issues/3798) Support abstract methods marked as tests. Fixed by team [PR 4490](https://github.com/nunit/nunit/pull/4490)
 * [3376](https://github.com/nunit/nunit/issues/3376) Nullable Reference Types annotations. Fixed by team through multiple PRs. . Fixed by team [PR 3488](https://github.com/nunit/nunit/pull/3488)
 * [3301](https://github.com/nunit/nunit/issues/3301) [HandleProcessCorruptedStateExceptions] has no effect unless we disable partial trust. Fixed by team [PR 4398](https://github.com/nunit/nunit/pull/4398)
-* [3132](https://github.com/nunit/nunit/issues/3132) Remove AssertionHelper and AssertionHelperTests. 
 
 ### The following issues are marked as breaking changes
 
