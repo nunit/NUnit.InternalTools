@@ -2,7 +2,7 @@
   "profiles": {
     "GetChanges": {
       "commandName": "Project",
-      "commandLineArgs": "-o nunit -r nunit -l -m 4.0"
+      "commandLineArgs": " -o nunit -r nunit  -l -m 3.14 > changes.3.14.md"
     }
   }
 }

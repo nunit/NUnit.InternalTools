@@ -33,7 +33,7 @@ class Program
             foreach (var milestone in milestones.Where(m =>
                          m.DueOn != null && m.DueOn.Value.Subtract(DateTimeOffset.Now).TotalDays < 30))
             {
-                await LoadIssuePr(github,milestone.Title.Trim());
+                await LoadIssuePr(github, milestone.Title.Trim());
                 await LoadAndDisplayIssues(milestone);
             }
         }
@@ -58,7 +58,7 @@ class Program
         }
     }
     private static readonly List<IssuePrItem> IssuesPrs = new();
-    private static async Task LoadIssuePr(GitHubApi gitHubApi,string milestone)
+    private static async Task LoadIssuePr(GitHubApi gitHubApi, string milestone)
     {
         var lines = await File.ReadAllLinesAsync($"issuespr.{milestone}.txt");
         foreach (var line in lines)
@@ -68,7 +68,9 @@ class Program
             {
                 var issue = int.Parse(parts[0]);
                 var pr = int.Parse(parts[1]);
-                var prItem = new IssuePrItem { Issue = issue, Pr = pr , Team=parts.Length==3};
+                var prItem = new IssuePrItem { Issue = issue, Pr = pr, Team = (parts.Length >= 3 && parts[2].Trim().Length > 0) };
+                if (parts.Length >= 4)
+                    prItem.Comment = parts[3];
                 var pullrequest = await gitHubApi.GetIssueOrPulLRequest(pr);
                 prItem.AuthorNick = pullrequest.User.Login;
                 var user = await gitHubApi.GetUser(pullrequest.User.Login);
@@ -83,7 +85,7 @@ class Program
     {
         Console.WriteLine("## {0}", milestone);
         Console.WriteLine();
-        var closedDoneIssues = issues.Where(o => o.ClosedDone() && o.PullRequest==null)
+        var closedDoneIssues = issues.Where(o => o.ClosedDone() && o.PullRequest == null)
             .OrderByDescending(o => o.Number)
             .ToList();
         Console.WriteLine($"Total number of issues fixed in this release is : {closedDoneIssues.Count}");
@@ -91,28 +93,34 @@ class Program
         var processedIssues = new List<Issue>();
         DisplaySection(options, processedIssues, closedDoneIssues, "### Enhancements", "is:enhancement");
         // DisplaySection(options, processedIssues, closedDoneIssues, "### New features","is:feature");
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Bug fixes","is:bug");
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Refactorings","is:refactor");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Bug fixes", "is:bug");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Refactorings", "is:refactor");
         DisplaySection(options, processedIssues, closedDoneIssues, "### Internal fixes", "is:internal");
         DisplaySection(options, processedIssues, closedDoneIssues, "### Deprecated features", "is:deprecation");
         // Write of the rest
-        Console.WriteLine("### Others");
-        Console.WriteLine();
         var rest = closedDoneIssues.Except(processedIssues).OrderByDescending(o => o.Number).ToList();
-        DisplayIssuesWithLabel(rest, "", options);
-        Console.WriteLine();
+        if (rest.Any())
+        {
+            Console.WriteLine("### Others");
+            Console.WriteLine();
+            DisplayIssuesWithLabel(rest, "", options);
+            Console.WriteLine();
+        }
         DisplaySection(options, processedIssues, closedDoneIssues, "### The following issues are marked as breaking changes", "Breaking");
     }
 
-    private static void DisplaySection(Options options, List<Issue> processedIssues, IEnumerable<Issue> closedDoneIssues,string header,string searchTerm)
+    private static void DisplaySection(Options options, List<Issue> processedIssues, IEnumerable<Issue> closedDoneIssues, string header, string searchTerm)
     {
         Console.WriteLine(header);
         Console.WriteLine();
-        processedIssues.AddRange(DisplayIssuesWithLabel(closedDoneIssues, searchTerm, options));
+        var issues = DisplayIssuesWithLabel(closedDoneIssues, searchTerm, options).ToList();
+        processedIssues.AddRange(issues);
+        if (!issues.Any())
+            Console.WriteLine("None");
         Console.WriteLine();
     }
 
-    static IEnumerable<Issue> DisplayIssuesWithLabel(IEnumerable<Issue> issues, string label,Options options)
+    static IEnumerable<Issue> DisplayIssuesWithLabel(IEnumerable<Issue> issues, string label, Options options)
     {
         var url = $"https://github.com/{options.Organization}/{options.Repository}";
         var list = issues.Where(o => o.LabelStartsWith(label)).ToList();
@@ -122,23 +130,20 @@ class Program
             string prText = "";
             if (prItem != null)
             {
-                if (prItem.Team)
-                {
-                    prText = $"Fixed by team [PR {prItem.Pr}]({url}/pull/{prItem.Pr})";
-                }
-                else
-                {
-                    prText = $"Thanks to [{prItem.Author}](https://github.com/{prItem.AuthorNick}) for [PR {prItem.Pr}]({url}/pull/{prItem.Pr})";
-                }
+                prText = prItem.Team ? $"Fixed by team [PR {prItem.Pr}]({url}/pull/{prItem.Pr})" : $"Thanks to [{prItem.Author}](https://github.com/{prItem.AuthorNick}) for [PR {prItem.Pr}]({url}/pull/{prItem.Pr})";
+                prText = prText.Replace("<", "&lt;" ).Replace(">", "&gt;");
             }
-            if (options.LinkIssues)
-                Console.WriteLine($"* [{issue.Number:####}]({url}/issues/{issue.Number}) {issue.Title}. {prText}");
-            else
-                Console.WriteLine($"* {issue.Number:####} {issue.Title}");
+            string comment = "";
+            if (prItem != null && prItem.Comment.Length > 0)
+                comment = $" ({prItem.Comment})";
+            string title = issue.Title.Replace("<", "&lt;").Replace(">", "&gt;");
+            Console.WriteLine(options.LinkIssues
+                ? $"* [{issue.Number:####}]({url}/issues/{issue.Number}) {title}. {prText}{comment}"
+                : $"* {issue.Number:####} {issue.Title}");
         }
         return list;
     }
-   
+
 }
 
 public static class Extensions
@@ -168,6 +173,8 @@ public class IssuePrItem
     public int Issue { get; set; }
     public int Pr { get; set; }
     public bool Team { get; set; }
+
+    public string Comment { get; set; } = "";
 
     public string Author { get; set; }
 

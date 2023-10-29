@@ -42,6 +42,9 @@
   </ItemGroup>
   
   <ItemGroup>
+    <None Update="IssuesPR.3.14.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="IssuesPR.4.0.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
