@@ -1,11 +1,12 @@
 ## 4.0
 
-Total number of issues fixed in this release is : 105
+Total number of issues fixed in this release is : 108
 
 ### Enhancements
 
 * [4521](https://github.com/nunit/nunit/issues/4521) Proposal: Async test case sources . Fixed by team [PR 4389](https://github.com/nunit/nunit/pull/4389)
 * [4489](https://github.com/nunit/nunit/issues/4489) Use buffer pooling when calculating partition filters. Fixed by team [PR 4500](https://github.com/nunit/nunit/pull/4500)
+* [4476](https://github.com/nunit/nunit/issues/4476) Add support to `StreamsComparer` for non-seekable streams. Thanks to [Michael Render](https://github.com/RenderMichael) for [PR 4483](https://github.com/nunit/nunit/pull/4483)
 * [4433](https://github.com/nunit/nunit/issues/4433) Add string syntax attributes (.NET 7+). Thanks to [Michael Render](https://github.com/RenderMichael) for [PR 4425](https://github.com/nunit/nunit/pull/4425)
 * [4431](https://github.com/nunit/nunit/issues/4431) Improving error message handling and performing assert consolidation. Fixed by team [PR 4430](https://github.com/nunit/nunit/pull/4430)
 * [4421](https://github.com/nunit/nunit/issues/4421) Add support for native .NET-6.0 target . Fixed by team [PR 4431](https://github.com/nunit/nunit/pull/4431)
@@ -32,6 +33,7 @@ Total number of issues fixed in this release is : 105
 
 ### Bug fixes
 
+* [4532](https://github.com/nunit/nunit/issues/4532) Assert.That no longer allows 'null' message. Fixed by team [PR 4533](https://github.com/nunit/nunit/pull/4533)
 * [4529](https://github.com/nunit/nunit/issues/4529) Forwardport: Missing stack trace when exception occurs during OneTimeSetUp #2466. Fixed by team [PR 4469](https://github.com/nunit/nunit/pull/4469)
 * [4528](https://github.com/nunit/nunit/issues/4528) Forwardport: Is.SupersetOf and Is.SubsetOf no longer work with IImmmutableDictionary&lt;TKey,TValue&gt; in NUnit 3.13.3 #4095. Fixed by team [PR 4098](https://github.com/nunit/nunit/pull/4098)
 * [4522](https://github.com/nunit/nunit/issues/4522) Missing stack trace when exception occurs during OneTimeSetUp #2466. Fixed by team [PR 4469](https://github.com/nunit/nunit/pull/4469)
