@@ -57,10 +57,11 @@ class Program
             DisplayIssuesForMilestone(options, milestone.Title, milestoneIssues);
         }
     }
-    private static readonly List<IssuePrItem> IssuesPrs = new();
+    private static readonly Dictionary<int,IssuePrItem> IssuesPrs = new();
     private static async Task LoadIssuePr(GitHubApi gitHubApi, string milestone)
     {
         var lines = await File.ReadAllLinesAsync($"issuespr.{milestone}.txt");
+        var userDict = new Dictionary<string, Octokit.User>();
         foreach (var line in lines)
         {
             var parts = line.Split(',');
@@ -73,9 +74,16 @@ class Program
                     prItem.Comment = parts[3];
                 var pullrequest = await gitHubApi.GetIssueOrPulLRequest(pr);
                 prItem.AuthorNick = pullrequest.User.Login;
-                var user = await gitHubApi.GetUser(pullrequest.User.Login);
+                if (!userDict.TryGetValue(pullrequest.User.Login,out var user))
+                {
+                    user = await gitHubApi.GetUser(pullrequest.User.Login);
+                    userDict.Add(pullrequest.User.Login, user);
+                }
                 prItem.Author = user.Name;
-                IssuesPrs.Add(prItem);
+                if (IssuesPrs.ContainsKey(prItem.Issue))
+                    Console.WriteLine($"Duplicate issue {prItem.Issue} in table");
+                else
+                    IssuesPrs.Add(prItem.Issue,prItem);
             }
         }
     }
@@ -88,15 +96,15 @@ class Program
         var closedDoneIssues = issues.Where(o => o.ClosedDone() && o.PullRequest == null)
             .OrderByDescending(o => o.Number)
             .ToList();
-        Console.WriteLine($"Total number of issues fixed in this release is : {closedDoneIssues.Count}");
+        Console.WriteLine($"There are {closedDoneIssues.Count} issues fixed in this release.");
         Console.WriteLine();
         var processedIssues = new List<Issue>();
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Enhancements", "is:enhancement");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Enhancements", new List<string>() { "is:enhancement","is:idea","is:feature"});
         // DisplaySection(options, processedIssues, closedDoneIssues, "### New features","is:feature");
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Bug fixes", "is:bug");
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Refactorings", "is:refactor");
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Internal fixes", "is:internal");
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Deprecated features", "is:deprecation");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Bug fixes", new List<string>() { "is:bug"});
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Refactorings",new List<string>() {  "is:refactor"});
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Internal fixes", new List<string>() { "is:internal","is:build" });
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Deprecated features", new List<string>() { "is:deprecation" });
         // Write of the rest
         var rest = closedDoneIssues.Except(processedIssues).OrderByDescending(o => o.Number).ToList();
         if (rest.Any())
@@ -106,16 +114,21 @@ class Program
             DisplayIssuesWithLabel(rest, "", options);
             Console.WriteLine();
         }
-        DisplaySection(options, processedIssues, closedDoneIssues, "### The following issues are marked as breaking changes", "Breaking");
+        DisplaySection(options, processedIssues, closedDoneIssues, "### The following issues are marked as breaking changes", new List<string>() { "Breaking"});
     }
 
-    private static void DisplaySection(Options options, List<Issue> processedIssues, IEnumerable<Issue> closedDoneIssues, string header, string searchTerm)
+    private static void DisplaySection(Options options, List<Issue> processedIssues, IEnumerable<Issue> closedDoneIssues, string header, IEnumerable<string> searchTerms)
     {
         Console.WriteLine(header);
         Console.WriteLine();
-        var issues = DisplayIssuesWithLabel(closedDoneIssues, searchTerm, options).ToList();
-        processedIssues.AddRange(issues);
-        if (!issues.Any())
+        int count=0;
+        foreach (var searchTerm in searchTerms)
+        {
+            var issues = DisplayIssuesWithLabel(closedDoneIssues, searchTerm, options).ToList();
+            processedIssues.AddRange(issues);
+            count += issues.Count;
+        }
+        if (count==0)
             Console.WriteLine("None");
         Console.WriteLine();
     }
@@ -126,15 +139,15 @@ class Program
         var list = issues.Where(o => o.LabelStartsWith(label)).ToList();
         foreach (var issue in list)
         {
-            var prItem = IssuesPrs.FirstOrDefault(o => o.Issue == issue.Number);
+            bool found = IssuesPrs.TryGetValue(issue.Number,out var prItem);
             string prText = "";
-            if (prItem != null)
+            if (found)
             {
                 prText = prItem.Team ? $"Fixed by team [PR {prItem.Pr}]({url}/pull/{prItem.Pr})" : $"Thanks to [{prItem.Author}](https://github.com/{prItem.AuthorNick}) for [PR {prItem.Pr}]({url}/pull/{prItem.Pr})";
                 prText = prText.Replace("<", "&lt;" ).Replace(">", "&gt;");
             }
             string comment = "";
-            if (prItem != null && prItem.Comment.Length > 0)
+            if (found && prItem.Comment.Length > 0)
                 comment = $" ({prItem.Comment})";
             string title = issue.Title.Replace("<", "&lt;").Replace(">", "&gt;");
             Console.WriteLine(options.LinkIssues
