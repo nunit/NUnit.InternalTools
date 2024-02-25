@@ -80,6 +80,8 @@ class Program
                     userDict.Add(pullrequest.User.Login, user);
                 }
                 prItem.Author = user.Name;
+                if (string.IsNullOrEmpty(prItem.Author))
+                    prItem.Author = prItem.AuthorNick;
                 if (IssuesPrs.ContainsKey(prItem.Issue))
                     Console.WriteLine($"Duplicate issue {prItem.Issue} in table");
                 else

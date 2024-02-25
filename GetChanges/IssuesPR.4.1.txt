@@ -1,0 +1,9 @@
+﻿4626, 4627, team
+4606, 4607, team
+4602, 4603
+4600, 4618
+4591, 4608, team
+4581, 4582, team
+4572, 4608, team, Adding modifier UsingPropertiesComparer() to AnyOf-, Equal-, SomeItems-, CollectionEquivalent-, CollectionSubset-, CollectionSuperSet-, DictionaryContainsKey-, DictonaryContainsKeyValuePair-, DictionaryContainsValue- and UniqueItemsConstraint.
+1215, 4620, team, See [TestOf](https://docs.nunit.org/articles/nunit/writing-tests/attributes/testof.html) documentation.
+
