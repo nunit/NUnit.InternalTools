@@ -80,5 +80,15 @@ If you ever want to revoke the token, visit the GitHub Applications settings pag
 If you prefer to just run it off the source code repo, you can do so by cloning the repo and running the following command line from the project folder,
 for e.g. milestone 4.0:
 
+For NUnit:
+```cmd
 `bin\Release\net7.0\getchanges.exe -o nunit -r nunit -l -m 4.0 > changes4.0.md`
+```
+
+For Nunit3TestAdapter:
+```cmd
+`bin\Release\net7.0\getchanges.exe -o nunit -r nunit3-vs-adapter -l -m 4.6 > nunit3-vs-adapter.changes4.6.md`
+```
+
+
 

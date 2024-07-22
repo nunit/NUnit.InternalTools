@@ -33,7 +33,7 @@ class Program
             foreach (var milestone in milestones.Where(m =>
                          m.DueOn != null && m.DueOn.Value.Subtract(DateTimeOffset.Now).TotalDays < 30))
             {
-                await LoadIssuePr(github, milestone.Title.Trim());
+                await LoadIssuePr(github, milestone.Title.Trim(),options);
                 await LoadAndDisplayIssues(milestone);
             }
         }
@@ -42,7 +42,7 @@ class Program
             var milestone = milestones.FirstOrDefault(m => m.Title == options.Milestone);
             if (milestone != null)
             {
-                await LoadIssuePr(github, milestone.Title.Trim());
+                await LoadIssuePr(github, milestone.Title.Trim(),options);
                 await LoadAndDisplayIssues(milestone);
             }
             else
@@ -58,10 +58,13 @@ class Program
         }
     }
     private static readonly Dictionary<int,IssuePrItem> IssuesPrs = new();
-    private static async Task LoadIssuePr(GitHubApi gitHubApi, string milestone)
+    private static async Task LoadIssuePr(GitHubApi gitHubApi, string milestone, Options options)
     {
-        var lines = await File.ReadAllLinesAsync($"issuespr.{milestone}.txt");
-        var userDict = new Dictionary<string, Octokit.User>();
+        var filename = $"{options.Repository}.issuesPR.{milestone}.txt";
+        if (!File.Exists(filename))
+            await File.WriteAllTextAsync(filename,"");
+        var lines = await File.ReadAllLinesAsync(filename);
+        var userDict = new Dictionary<string, User>();
         foreach (var line in lines)
         {
             var parts = line.Split(',');
