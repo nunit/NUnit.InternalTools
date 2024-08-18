@@ -1,9 +1,10 @@
 ## 4.2
 
-There are 31 issues fixed in this release.
+There are 33 issues fixed in this release.
 
 ### Enhancements
 
+* [4777](https://github.com/nunit/nunit/issues/4777) Publicly expose `IgnoreAttribute.Reason`. Thanks to [Michael Render](https://github.com/RenderMichael) for [PR 4781](https://github.com/nunit/nunit/pull/4781)
 * [4738](https://github.com/nunit/nunit/issues/4738) QoL suggestion: fail fast in Assert.Multiple under debugger. Thanks to [MaceWindu](https://github.com/MaceWindu) for [PR 4749](https://github.com/nunit/nunit/pull/4749)
 * [4710](https://github.com/nunit/nunit/issues/4710) Improve PropertiesComparer diagnostics. Fixed by team [PR 4712](https://github.com/nunit/nunit/pull/4712)
 * [4353](https://github.com/nunit/nunit/issues/4353) TestContext.AddTestAttachment with long file paths. Thanks to [Rohit Aggarwal](https://github.com/Meet2rohit99) for [PR 4665](https://github.com/nunit/nunit/pull/4665)
@@ -17,6 +18,7 @@ There are 31 issues fixed in this release.
 
 ### Bug fixes
 
+* [4782](https://github.com/nunit/nunit/issues/4782) Bug report: [ValueSource] doesn't play nice with [CancelAfter]. Fixed by team [PR 4783](https://github.com/nunit/nunit/pull/4783)
 * [4770](https://github.com/nunit/nunit/issues/4770) Bug report: [Values] doesn't play nice with [CancelAfter]. Fixed by team [PR 4774](https://github.com/nunit/nunit/pull/4774)
 * [4750](https://github.com/nunit/nunit/issues/4750) `DefaultFloatingPointTolerance` ignored for `TestCaseData`. Fixed by team [PR 4754](https://github.com/nunit/nunit/pull/4754)
 * [4723](https://github.com/nunit/nunit/issues/4723) CurrentContext.Result.Outcome.Status is inconclusive in TearDown if Timeout attribute is used in 4.x. Fixed by team [PR 4727](https://github.com/nunit/nunit/pull/4727)
