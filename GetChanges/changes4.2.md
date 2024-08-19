@@ -1,6 +1,6 @@
 ## 4.2
 
-There are 33 issues fixed in this release.
+There are 35 issues fixed in this release.
 
 ### Enhancements
 
@@ -42,6 +42,7 @@ There are 33 issues fixed in this release.
 * [4733](https://github.com/nunit/nunit/issues/4733) Improve speed of Randomizer.GetString. Fixed by team [PR 4512](https://github.com/nunit/nunit/pull/4512)
 * [3981](https://github.com/nunit/nunit/issues/3981) Switch default branch to main. Fixed by team [PR 4753](https://github.com/nunit/nunit/pull/4753)
 * [4649](https://github.com/nunit/nunit/issues/4649) Switch to using MacOS 14 in GitHub Actions. Fixed by team [PR 4648](https://github.com/nunit/nunit/pull/4648)
+* [3757](https://github.com/nunit/nunit/issues/3757) Re-Add WinForms and WPF based tests. Fixed by team [PR 4776](https://github.com/nunit/nunit/pull/4776)
 
 ### Deprecated features
 
