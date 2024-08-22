@@ -3,7 +3,7 @@
     "GetChanges": {
       "commandName": "Project",
       "commandLineArgs": " -o nunit -r nunit -l -m 4.2 > changes4.2.md",
-      "workingDirectory": "c:\\repos\\nunit\\nunit.internaltools\\getchanges"
+      "workingDirectory": "d:\\repos\\nunit\\nunit.internaltools\\getchanges"
     }
   }
 }
