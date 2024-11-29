@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Alteridem.GetChanges</RootNamespace>
     <AssemblyName>getchanges</AssemblyName>
     <Authors>Rob Prouse</Authors>
@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://github.com/rprouse/GetChanges</PackageProjectUrl>
     <RepositoryUrl>https://github.com/rprouse/GetChanges</RepositoryUrl>
     <PackageId>dotnet-getchanges</PackageId>
-    <Version>1.0.2</Version>
+    <Version>2.0</Version>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>getchanges</ToolCommandName>
     <PackageOutputPath>./nupkg</PackageOutputPath>
@@ -22,7 +22,15 @@
     <Description>A minimal project to list all closed issues in GitHub repository by milestone in Markdown format. Right now, it is designed to create the changelist for NUnit.</Description>
   </PropertyGroup>
 
-  <ItemGroup>
+    <ItemGroup>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+            <_Parameter1>GetChangesTest</_Parameter1>
+        </AssemblyAttribute>
+    </ItemGroup>
+
+
+
+    <ItemGroup>
     <Compile Remove="nupkg\**" />
     <EmbeddedResource Remove="nupkg\**" />
     <None Remove="nupkg\**" />
@@ -35,6 +43,7 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.9.1" />
     <PackageReference Include="Octokit" Version="13.0.1" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.71" />
   </ItemGroup>
   
   <ItemGroup>

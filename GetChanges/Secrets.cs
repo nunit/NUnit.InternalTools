@@ -17,7 +17,7 @@ namespace Alteridem.GetChanges
         public static void Configure()
         {
             Console.Write("Enter your GitHub API Token (See README.md): ");
-            Secrets.Token = Console.ReadLine();
+            Token = Console.ReadLine();
         }
 
         private static string ConfigDirectory

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 
@@ -26,92 +27,36 @@ class Program
             return;
         }
 
-        var github = new GitHubApi(options.Organization, options.Repository);
-        var milestones = await github.GetOpenMilestones();
-        if (options.Milestone.Length == 0) // No specific milestone, so let us run through the most current open milestones
-        {
-            foreach (var milestone in milestones.Where(m =>
-                         m.DueOn != null && m.DueOn.Value.Subtract(DateTimeOffset.Now).TotalDays < 30))
-            {
-                await LoadIssuePr(github, milestone.Title.Trim(),options);
-                await LoadAndDisplayIssues(milestone);
-            }
-        }
-        else // We have a specific milestone, hopefully
-        {
-            var milestone = milestones.FirstOrDefault(m => m.Title == options.Milestone);
-            if (milestone != null)
-            {
-                await LoadIssuePr(github, milestone.Title.Trim(),options);
-                await LoadAndDisplayIssues(milestone);
-            }
-            else
-            {
-                Console.WriteLine("Milestone {0} not found", options.Milestone);
-            }
-        }
+        var loader = new Loader(options);
+        await loader.LoadMilestone();
+        await loader.LoadIssues();
+        await loader.LoadUserNames();
+        loader.UpdatePrAuthors();
 
-        async Task LoadAndDisplayIssues(Milestone milestone)
-        {
-            var milestoneIssues = await github.GetClosedIssuesForMilestone(milestone);
-            DisplayIssuesForMilestone(options, milestone.Title, milestoneIssues);
-        }
-    }
-    private static readonly Dictionary<int,IssuePrItem> IssuesPrs = new();
-    private static async Task LoadIssuePr(GitHubApi gitHubApi, string milestone, Options options)
-    {
-        var filename = $"{options.Repository}.issuesPR.{milestone}.txt";
-        if (!File.Exists(filename))
-            await File.WriteAllTextAsync(filename,"");
-        var lines = await File.ReadAllLinesAsync(filename);
-        var userDict = new Dictionary<string, User>();
-        foreach (var line in lines)
-        {
-            var parts = line.Split(',');
-            if (parts.Length >= 2)
-            {
-                var issue = int.Parse(parts[0]);
-                var pr = int.Parse(parts[1]);
-                var prItem = new IssuePrItem { Issue = issue, Pr = pr, Team = (parts.Length >= 3 && parts[2].Trim().Length > 0) };
-                if (parts.Length >= 4)
-                    prItem.Comment = parts[3];
-                var pullrequest = await gitHubApi.GetIssueOrPulLRequest(pr);
-                prItem.AuthorNick = pullrequest.User.Login;
-                if (!userDict.TryGetValue(pullrequest.User.Login,out var user))
-                {
-                    user = await gitHubApi.GetUser(pullrequest.User.Login);
-                    userDict.Add(pullrequest.User.Login, user);
-                }
-                prItem.Author = user.Name;
-                if (string.IsNullOrEmpty(prItem.Author))
-                    prItem.Author = prItem.AuthorNick;
-                if (IssuesPrs.ContainsKey(prItem.Issue))
-                    Console.WriteLine($"Duplicate issue {prItem.Issue} in table");
-                else
-                    IssuesPrs.Add(prItem.Issue,prItem);
-            }
-        }
+        // Display the changes
+
+        await DisplayIssuesForMilestone(options, loader.Milestone.Title, loader.IssuePrItemList);
+
     }
 
-
-    static void DisplayIssuesForMilestone(Options options, string milestone, IEnumerable<Issue> issues)
+    static async Task DisplayIssuesForMilestone(Options options, string milestone, IssuesPrList issues)
     {
         Console.WriteLine("## {0}", milestone);
         Console.WriteLine();
-        var closedDoneIssues = issues.Where(o => o.ClosedDone() && o.PullRequest == null)
-            .OrderByDescending(o => o.Number)
+        var closedDoneIssues = issues.Items
+            .OrderByDescending(o => o.IssueId)
             .ToList();
         Console.WriteLine($"There are {closedDoneIssues.Count} issues fixed in this release.");
         Console.WriteLine();
-        var processedIssues = new List<Issue>();
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Enhancements", new List<string>() { "is:enhancement","is:idea","is:feature"});
+        var processedIssues = new List<IssuePrItem>();
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Enhancements", new List<string> { "is:enhancement", "is:idea", "is:feature" });
         // DisplaySection(options, processedIssues, closedDoneIssues, "### New features","is:feature");
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Bug fixes", new List<string>() { "is:bug"});
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Refactorings",new List<string>() {  "is:refactor"});
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Internal fixes", new List<string>() { "is:internal","is:build" });
-        DisplaySection(options, processedIssues, closedDoneIssues, "### Deprecated features", new List<string>() { "is:deprecation" });
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Bug fixes", new List<string> { "is:bug" });
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Refactorings", new List<string> { "is:refactor" });
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Internal fixes", new List<string> { "is:internal", "is:build" });
+        DisplaySection(options, processedIssues, closedDoneIssues, "### Deprecated features", new List<string> { "is:deprecation" });
         // Write of the rest
-        var rest = closedDoneIssues.Except(processedIssues).OrderByDescending(o => o.Number).ToList();
+        var rest = closedDoneIssues.Except(processedIssues).OrderByDescending(o => o.IssueId).ToList();
         if (rest.Any())
         {
             Console.WriteLine("### Others");
@@ -119,82 +64,136 @@ class Program
             DisplayIssuesWithLabel(rest, "", options);
             Console.WriteLine();
         }
-        DisplaySection(options, processedIssues, closedDoneIssues, "### The following issues are marked as breaking changes", new List<string>() { "Breaking"});
+        DisplaySection(options, processedIssues, closedDoneIssues, "### The following issues are marked as breaking changes", new List<string> { "Breaking" });
+        Console.WriteLine();
+        Console.WriteLine("### Acknowledgements");
+        Console.WriteLine();
+        Console.WriteLine("First and foremost, we want to recognize the exceptional contributions of team members [Manfred Brands](https://github.com/manfred-brands) and [Steven Weerdenburg](https://github.com/stevenaw) for their dedicated efforts on this release, particularly their work on improving type safety.");
+        Console.WriteLine();
+        Console.WriteLine("We also express our heartfelt gratitude to everyone who has contributed to this release\nby reporting bugs, suggesting enhancements, and providing valuable feedback.\nYour efforts help make NUnit better for the entire community.");
+        Console.WriteLine();
+        Console.WriteLine("A special thank you to the following reporters for identifying issues:");
+        Console.WriteLine();
+        await DisplayReporters(issues);
+        Console.WriteLine();
+        Console.WriteLine("and to the commenters who engaged in discussions and offered further insights:");
+        Console.WriteLine();
+        await DisplayCommenters(issues);
+
+
     }
 
-    private static void DisplaySection(Options options, List<Issue> processedIssues, IEnumerable<Issue> closedDoneIssues, string header, IEnumerable<string> searchTerms)
+    private static async Task DisplayReporters(IssuesPrList issues)
+    {
+        List<UserName> reporterList = [];
+        foreach (var issue in issues.Items)
+        {
+            var user = issues.UserNames.FirstOrDefault(o => o.Login == issue.ReporterNick);
+            if (!reporterList.Contains(user))
+                reporterList.Add(user);
+        }
+
+        var listOfReporters = GenerateReporterTable(reporterList);
+        Console.WriteLine(listOfReporters);
+    }
+
+    public static string GenerateReporterTable(List<UserName> reporters)
+    {
+        if (reporters == null || reporters.Count == 0)
+            return string.Empty;
+
+        var sb = new StringBuilder();
+        sb.AppendLine("<table>");
+
+        var sortedReporters = reporters.OrderBy(r => r.Name ?? r.Login).ToList();
+
+        int counter = 0;
+        foreach (var reporter in sortedReporters)
+        {
+            if (counter % 4 == 0) sb.AppendLine("<tr>"); // Start a new row for every 4 items
+
+            sb.AppendLine($"<td><a href=\"{reporter.HtmlUrl}\">{reporter.Name ?? reporter.Login}</a></td>");
+
+            counter++;
+
+            if (counter % 4 == 0 || counter == sortedReporters.Count) sb.AppendLine("</tr>"); // Close the row
+        }
+        sb.AppendLine("</table>");
+        return sb.ToString();
+    }
+
+    private static async Task DisplayCommenters(IssuesPrList issues)
+    {
+        List<UserName> commenterList = [];
+        foreach (var issue in issues.Items)
+        {
+            foreach (var commenter in issue.Commenters)
+            {
+                var user = issues.UserNames.FirstOrDefault(o => o.Login == commenter.Login);
+                if (!commenterList.Contains(user))
+                    commenterList.Add(user);
+            }
+
+            if (issue.PullRequestCommenters != null)
+            {
+                foreach (var commenter in issue.PullRequestCommenters)
+                {
+                    var user = issues.UserNames.FirstOrDefault(o => o.Login == commenter.Login);
+                    if (!commenterList.Contains(user))
+                        commenterList.Add(user);
+                }
+            }
+        }
+
+        var listOfCommenters = GenerateReporterTable(commenterList);
+        Console.WriteLine(listOfCommenters);
+
+    }
+
+
+
+    private static void DisplaySection(Options options, List<IssuePrItem> processedIssues, List<IssuePrItem> closedDoneIssues, string header, IEnumerable<string> searchTerms)
     {
         Console.WriteLine(header);
         Console.WriteLine();
-        int count=0;
+        int count = 0;
         foreach (var searchTerm in searchTerms)
         {
             var issues = DisplayIssuesWithLabel(closedDoneIssues, searchTerm, options).ToList();
             processedIssues.AddRange(issues);
             count += issues.Count;
         }
-        if (count==0)
-            Console.WriteLine("None");
-        Console.WriteLine();
+        Console.WriteLine(count == 0 ? "None" : "");
+
     }
 
-    static IEnumerable<Issue> DisplayIssuesWithLabel(IEnumerable<Issue> issues, string label, Options options)
+    static IEnumerable<IssuePrItem> DisplayIssuesWithLabel(List<IssuePrItem> issues, string label, Options options)
     {
         var url = $"https://github.com/{options.Organization}/{options.Repository}";
         var list = issues.Where(o => o.LabelStartsWith(label)).ToList();
         foreach (var issue in list)
         {
-            bool found = IssuesPrs.TryGetValue(issue.Number,out var prItem);
             string prText = "";
+            bool found = issue.PrNumber > 0;
             if (found)
             {
-                prText = prItem.Team ? $"Fixed by team [PR {prItem.Pr}]({url}/pull/{prItem.Pr})" : $"Thanks to [{prItem.Author}](https://github.com/{prItem.AuthorNick}) for [PR {prItem.Pr}]({url}/pull/{prItem.Pr})";
-                prText = prText.Replace("<", "&lt;" ).Replace(">", "&gt;");
+                prText = PullRequestMentions(issue, url);
+                prText = prText.Replace("<", "&lt;").Replace(">", "&gt;");
             }
-            string comment = "";
-            if (found && prItem.Comment.Length > 0)
-                comment = $" ({prItem.Comment})";
             string title = issue.Title.Replace("<", "&lt;").Replace(">", "&gt;");
             Console.WriteLine(options.LinkIssues
-                ? $"* [{issue.Number:####}]({url}/issues/{issue.Number}) {title}. {prText}{comment}"
-                : $"* {issue.Number:####} {issue.Title}");
+                ? $"* [{issue.IssueId:####}]({url}/issues/{issue.IssueId}) {title} {prText}"
+                : $"* {issue.IssueId:####} {issue.Title}");
         }
         return list;
     }
 
-}
-
-public static class Extensions
-{
-    public static bool LabelExist(this Issue issue, string labelName)
+    static string PullRequestMentions(IssuePrItem prItem, string url)
     {
-        return issue.Labels.FirstOrDefault(l => l.Name == labelName) != null;
+        string[] teammembers = ["manfred-brands", "OsirisTerje", "stevenaw"];
+        return teammembers.Contains(prItem.PrAuthorNick)
+            ? $"Thanks to NUnit Team member [{prItem.PrAuthor}](https://github.com/{prItem.PrAuthorNick}) for [PR {prItem.PrNumber}]({url}/pull/{prItem.PrNumber})"
+            : $"Thanks to [{prItem.PrAuthor}](https://github.com/{prItem.PrAuthorNick}) for [PR {prItem.PrNumber}]({url}/pull/{prItem.PrNumber})";
     }
 
-    public static bool LabelStartsWith(this Issue issue, string labelName)
-    {
-        return issue.Labels.FirstOrDefault(l => l.Name.StartsWith(labelName)) != null;
-    }
-
-    /// <summary>
-    /// Issue is either not labeled with closed: or is labeled with closed:done
-    /// </summary>
-    public static bool ClosedDone(this Issue issue)
-    {
-        var label = issue.Labels.FirstOrDefault(l => l.Name.StartsWith("closed:"));
-        return label == null || label.Name.EndsWith("done");
-    }
-}
-
-public class IssuePrItem
-{
-    public int Issue { get; set; }
-    public int Pr { get; set; }
-    public bool Team { get; set; }
-
-    public string Comment { get; set; } = "";
-
-    public string Author { get; set; }
-
-    public string AuthorNick { get; set; }
 }
