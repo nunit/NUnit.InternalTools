@@ -2,7 +2,7 @@
   "profiles": {
     "GetChanges": {
       "commandName": "Project",
-      "commandLineArgs": " -o nunit -r nunit -l -m 4.3 > changes4.3.md",
+      "commandLineArgs": " -o nunit -r nunit -l -m 4.3.1 > changes4.3.1.md",
       "workingDirectory": "c:\\repos\\nunit\\nunit.internaltools\\getchanges"
     }
   }

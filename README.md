@@ -75,6 +75,12 @@ In order to run, you must set the GitHub authentication token. This token is a P
 
 If you ever want to revoke the token, visit the GitHub Applications settings page and click Delete next to the key you wish to remove.
 
+e.g. for NUnit, run the following command line from the project folder,
+```cmd
+`getchanges -o nunit -r nunit -c`
+```
+
+
 ## Running on source code repo
 
 In project properties, set working directory to the project folder. 

@@ -68,9 +68,7 @@ class Program
         Console.WriteLine();
         Console.WriteLine("### Acknowledgements");
         Console.WriteLine();
-        Console.WriteLine("First and foremost, we want to recognize the exceptional contributions of team members [Manfred Brands](https://github.com/manfred-brands) and [Steven Weerdenburg](https://github.com/stevenaw) for their dedicated efforts on this release, particularly their work on improving type safety.");
-        Console.WriteLine();
-        Console.WriteLine("We also express our heartfelt gratitude to everyone who has contributed to this release\nby reporting bugs, suggesting enhancements, and providing valuable feedback.\nYour efforts help make NUnit better for the entire community.");
+        Console.WriteLine("We want to express our heartfelt gratitude to everyone who has contributed to this release\nby reporting bugs, suggesting enhancements, and providing valuable feedback.\nYour efforts help make NUnit better for the entire community.");
         Console.WriteLine();
         Console.WriteLine("A special thank you to the following reporters for identifying issues:");
         Console.WriteLine();
