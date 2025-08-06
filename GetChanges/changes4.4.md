@@ -137,6 +137,7 @@ and to the commenters who engaged in discussions and offered further insights:
 <td><a href="https://github.com/Star62enis">Star62enis</a></td>
 <td><a href="https://github.com/SFrank1966">Stefan Frank</a></td>
 <td><a href="https://github.com/stevenaw">Steven Weerdenburg</a></td>
+<td><a href="https://github.com/OsirisTerje">Terje Sandstrom</a></td>
 </tr>
 <tr>
 <td><a href="https://github.com/OsirisTerje">Terje Sandstrom</a></td>
