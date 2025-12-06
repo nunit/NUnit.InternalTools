@@ -50,9 +50,19 @@ namespace Alteridem.GetChanges
             {
                 return await _github.Issue.Milestone.GetAllForRepository(_organization, _repository, request);
             }
+            catch (Octokit.AuthorizationException ex)
+            {
+                Console.WriteLine("Authorization failed. Please check your GitHub token or permissions.");
+                Console.WriteLine($"Details: {ex.Message}");
+                // Depending on the application's requirements, you might want to re-throw,
+                // return an empty list, or prompt the user for a new token.
+                // For now, we'll just return an empty list.
+                throw;
+            }
             catch (Exception ex)
             {
                 Console.WriteLine("Failed to get milestones for repository, {0}", ex.Message);
+                throw;
             }
 
             return new List<Milestone>();
