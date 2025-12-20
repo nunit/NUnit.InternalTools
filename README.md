@@ -77,7 +77,7 @@ If you ever want to revoke the token, visit the GitHub Applications settings pag
 
 e.g. for NUnit, run the following command line from the project folder,
 ```cmd
-`getchanges -o nunit -r nunit -c`
+`dotnet run --  -o nunit -r nunit -c`
 ```
 
 
