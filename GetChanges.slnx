@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/.github/" />
+  <Folder Name="/.github/workflows/">
+    <File Path=".github/workflows/continuous_integration.yml" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="GetChanges/GetChanges.csproj" />
+  <Project Path="GetChangesTest/GetChangesTest.csproj" />
+</Solution>
