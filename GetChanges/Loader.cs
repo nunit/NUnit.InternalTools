@@ -146,8 +146,8 @@ internal class Loader(Options options)
             IssuePrItemList.UserNames.Add(new UserName
             {
                 Login = user.Login,
-                Name = userDetail.Name,
-                HtmlUrl = userDetail.HtmlUrl
+                Name = userDetail?.Name??user.Login,
+                HtmlUrl = userDetail?.HtmlUrl??""
             });
         }
 

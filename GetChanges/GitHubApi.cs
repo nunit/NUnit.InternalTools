@@ -116,8 +116,8 @@ namespace Alteridem.GetChanges
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                Console.WriteLine($"User {login} not found. {e}");
+                return null;
             }
         }
 
