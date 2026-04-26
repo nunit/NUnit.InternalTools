@@ -2,8 +2,8 @@
   "profiles": {
     "GetChanges": {
       "commandName": "Project",
-      "commandLineArgs": " -o nunit -r nunit3-vs-adapter -l -m 6.2 > nunit3-vs-adapter.changes6.2.0.md",
-      "workingDirectory": "c:\\repos\\nunit\\nunit.internaltools\\getchanges"
+      "commandLineArgs": " -o nunit -r nunit -l -m 4.6 > changes4.6.0.md",
+      "workingDirectory": "c:\\repos\\nunit\\nunit.internaltools\\releasenotetool"
     }
   }
 }
