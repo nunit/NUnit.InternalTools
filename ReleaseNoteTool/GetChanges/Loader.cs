@@ -17,8 +17,11 @@ internal class Loader(Options options)
 
     internal async Task LoadMilestone()
     {
+        Console.Out.WriteLine($"Loading milestone '{options.Milestone}'...");
         var milestones = await Github.GetOpenMilestones();
         Milestone = milestones.FirstOrDefault(m => m.Title == options.Milestone);
+        if (Milestone != null)
+            Console.Out.WriteLine($"Found milestone: {Milestone.Title} (#{Milestone.Number})");
     }
 
     /// <summary>
@@ -29,15 +32,28 @@ internal class Loader(Options options)
     {
         if (Milestone == null)
         {
-            Console.WriteLine("Milestone not found");
+            Console.Error.WriteLine("Error: Milestone not found");
             return;
         }
+        Console.Out.WriteLine("Loading issues from GitHub...");
         var issues = await Github.GetClosedIssuesForMilestone(Milestone);
+        Console.Out.WriteLine($"Found {issues.Count} closed issues in milestone");
+
+        int processed = 0;
         foreach (var issue in issues)
         {
-            var issuePr = await LoadIssueWithPr(issue);
-            IssuePrItemList.Add(issuePr);
+            try
+            {
+                var issuePr = await LoadIssueWithPr(issue);
+                IssuePrItemList.Add(issuePr);
+                processed++;
+            }
+            catch (Exception ex)
+            {
+                Console.Error.WriteLine($"Error processing issue #{issue.Number}: {ex.Message}");
+            }
         }
+        Console.Out.WriteLine($"Successfully loaded {IssuePrItemList.Items.Count} of {issues.Count} issues");
     }
     internal async Task<IssuePrItem> LoadIssueWithPr(Issue issue)
     {
@@ -63,9 +79,12 @@ internal class Loader(Options options)
         }
 
         // For breaking changes, fetch the [!IMPORTANT] note from body or comments
+        Console.Out.WriteLine($"  Issue #{issue.Number} labels: [{string.Join(", ", issuePr.Labels)}]");
         if (issuePr.LabelStartsWith("Breaking"))
         {
+            Console.Out.WriteLine($"  Issue #{issue.Number} IS a breaking change, fetching IMPORTANT note...");
             issuePr.ImportantNote = await Github.GetImportantNoteAsync(issue.Number, issue.Body);
+            Console.Out.WriteLine($"  Issue #{issue.Number} ImportantNote: {(string.IsNullOrEmpty(issuePr.ImportantNote) ? "(empty)" : issuePr.ImportantNote)}");
         }
 
         return issuePr;
@@ -146,8 +165,11 @@ internal class Loader(Options options)
     /// <returns></returns>
     public async Task LoadUserNames()
     {
+        Console.Out.WriteLine("Loading user information...");
+
         // Load cached usernames from file
         await LoadCacheAsync();
+        Console.Out.WriteLine($"  Loaded {IssuePrItemList.UserNames.Count} users from cache");
 
         // Ensure users are moved
         MoveUsers();
@@ -157,20 +179,29 @@ internal class Loader(Options options)
             .Where(user => IssuePrItemList.UserNames.All(cached => cached.Login != user.Login))
             .ToList();
 
-        // Fetch missing users from GitHub
-        foreach (var user in usersToFetch)
+        if (usersToFetch.Count > 0)
         {
-            var userDetail = await Github.GetUser(user.Login);
-            IssuePrItemList.UserNames.Add(new UserName
+            Console.Out.WriteLine($"  Fetching {usersToFetch.Count} users from GitHub...");
+            int fetched = 0;
+            // Fetch missing users from GitHub
+            foreach (var user in usersToFetch)
             {
-                Login = user.Login,
-                Name = userDetail?.Name??user.Login,
-                HtmlUrl = userDetail?.HtmlUrl??""
-            });
+                var userDetail = await Github.GetUser(user.Login);
+                IssuePrItemList.UserNames.Add(new UserName
+                {
+                    Login = user.Login,
+                    Name = userDetail?.Name??user.Login,
+                    HtmlUrl = userDetail?.HtmlUrl??""
+                });
+                fetched++;
+                Console.Out.Write($"\r  Fetching users: {fetched}/{usersToFetch.Count}");
+            }
+            Console.Out.WriteLine();
         }
 
         // Save updated cache to file
         await SaveCacheAsync();
+        Console.Out.WriteLine($"  Total users: {IssuePrItemList.UserNames.Count}");
     }
 
     private async Task LoadCacheAsync()

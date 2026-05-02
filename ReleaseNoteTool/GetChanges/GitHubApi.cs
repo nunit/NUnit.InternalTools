@@ -52,8 +52,8 @@ namespace Alteridem.GetChanges
             }
             catch (Octokit.AuthorizationException ex)
             {
-                Console.WriteLine("Authorization failed. Please check your GitHub token or permissions.");
-                Console.WriteLine($"Details: {ex.Message}");
+                Console.Error.WriteLine("Authorization failed. Please check your GitHub token or permissions.");
+                Console.Error.WriteLine($"Details: {ex.Message}");
                 // Depending on the application's requirements, you might want to re-throw,
                 // return an empty list, or prompt the user for a new token.
                 // For now, we'll just return an empty list.
@@ -61,7 +61,7 @@ namespace Alteridem.GetChanges
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to get milestones for repository, {0}", ex.Message);
+                Console.Error.WriteLine("Failed to get milestones for repository, {0}", ex.Message);
                 throw;
             }
         }
@@ -81,7 +81,7 @@ namespace Alteridem.GetChanges
             }
             catch (Exception ex)
             {
-                Console.WriteLine("Failed to get issues for repository, {0}", ex.Message);
+                Console.Error.WriteLine("Failed to get issues for repository, {0}", ex.Message);
             }
 
             return new List<Issue>();
@@ -100,7 +100,7 @@ namespace Alteridem.GetChanges
             }
             catch (ApiException e)
             {
-                Console.WriteLine($"Could not get Id={id}, exception: {e}");
+                Console.Error.WriteLine($"Could not get Id={id}, exception: {e}");
                 throw;
             }
         }
@@ -114,7 +114,7 @@ namespace Alteridem.GetChanges
             }
             catch (Exception e)
             {
-                Console.WriteLine($"User {login} not found. {e}");
+                Console.Error.WriteLine($"User {login} not found. {e}");
                 return null;
             }
         }
@@ -232,7 +232,7 @@ namespace Alteridem.GetChanges
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"GraphQL request failed for issue {issueNumber}: {response.StatusCode}");
+                Console.Error.WriteLine($"GraphQL request failed for issue {issueNumber}: {response.StatusCode}");
                 return [];
             }
 
@@ -244,14 +244,22 @@ namespace Alteridem.GetChanges
 
             if (root.TryGetProperty("errors", out var errors))
             {
-                Console.WriteLine($"GraphQL errors for issue {issueNumber}: {errors}");
+                Console.Error.WriteLine($"GraphQL errors for issue {issueNumber}: {errors}");
                 return [];
             }
 
-            var nodes = root
+            var issueElement = root
                 .GetProperty("data")
                 .GetProperty("repository")
-                .GetProperty("issue")
+                .GetProperty("issue");
+
+            // Issue can be null if the number refers to a PR, not an issue
+            if (issueElement.ValueKind == JsonValueKind.Null)
+            {
+                return [];
+            }
+
+            var nodes = issueElement
                 .GetProperty("timelineItems")
                 .GetProperty("nodes");
 
@@ -326,7 +334,7 @@ namespace Alteridem.GetChanges
                 return linkedPrs[0];
             }
 
-            Console.WriteLine($"{issueNumber}, No pull request found");
+            Console.Error.WriteLine($"{issueNumber}, No pull request found");
             return -1;
         }
 
@@ -396,7 +404,7 @@ namespace Alteridem.GetChanges
 
             if (!response.IsSuccessStatusCode)
             {
-                Console.WriteLine($"GraphQL request failed for PR {prNumber}: {response.StatusCode}");
+                Console.Error.WriteLine($"GraphQL request failed for PR {prNumber}: {response.StatusCode}");
                 return (null, null, null, false);
             }
 
@@ -405,7 +413,7 @@ namespace Alteridem.GetChanges
 
             if (root.TryGetProperty("errors", out var errors))
             {
-                Console.WriteLine($"GraphQL errors for PR {prNumber}: {errors}");
+                Console.Error.WriteLine($"GraphQL errors for PR {prNumber}: {errors}");
                 return (null, null, null, false);
             }
 

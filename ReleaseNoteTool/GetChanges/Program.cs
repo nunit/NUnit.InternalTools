@@ -2,6 +2,7 @@ using CommandLine;
 using Octokit;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -12,6 +13,48 @@ namespace Alteridem.GetChanges;
 
 class Program
 {
+    private static TextWriter Output = Console.Out;
+
+    /// <summary>
+    /// Gets the full output path by combining the DataDirectory setting with the filename.
+    /// If the file path is already absolute, returns it as-is.
+    /// </summary>
+    private static string GetOutputPath(string fileName)
+    {
+        // If it's already an absolute path, use it directly
+        if (Path.IsPathRooted(fileName))
+        {
+            Console.Out.WriteLine($"  Using absolute path: {fileName}");
+            return fileName;
+        }
+
+        // Get the data directory from config, relative to the executable location
+        var dataDir = ConfigurationManager.AppSettings["DataDirectory"];
+        Console.Out.WriteLine($"  DataDirectory from config: {dataDir ?? "(not set)"}");
+
+        if (string.IsNullOrEmpty(dataDir))
+        {
+            Console.Out.WriteLine($"  No DataDirectory configured, using current directory");
+            return fileName;
+        }
+
+        // Resolve relative to the executable's directory
+        var exeDir = AppContext.BaseDirectory;
+        Console.Out.WriteLine($"  Executable directory: {exeDir}");
+
+        var fullDataDir = Path.GetFullPath(Path.Combine(exeDir, dataDir));
+        Console.Out.WriteLine($"  Resolved data directory: {fullDataDir}");
+
+        // Ensure the directory exists
+        if (!Directory.Exists(fullDataDir))
+        {
+            Console.Out.WriteLine($"  Creating directory: {fullDataDir}");
+            Directory.CreateDirectory(fullDataDir);
+        }
+
+        return Path.Combine(fullDataDir, fileName);
+    }
+
     static async Task Main(string[] args)
     {
         await Parser.Default
@@ -27,27 +70,48 @@ class Program
             return;
         }
 
-        var loader = new Loader(options);
-        await loader.LoadMilestone();
-        await loader.LoadIssues();
-        await loader.LoadUserNames();
-        loader.UpdatePrAuthors();
+        // Set up output destination
+        StreamWriter fileWriter = null;
+        if (!string.IsNullOrEmpty(options.OutputFile))
+        {
+            var outputPath = GetOutputPath(options.OutputFile);
+            fileWriter = new StreamWriter(outputPath, false, Encoding.UTF8);
+            Output = fileWriter;
+            Console.Out.WriteLine($"Writing release notes to: {outputPath}");
+        }
 
-        // Display the changes
+        try
+        {
+            var loader = new Loader(options);
+            await loader.LoadMilestone();
+            await loader.LoadIssues();
+            await loader.LoadUserNames();
+            loader.UpdatePrAuthors();
 
-        await DisplayIssuesForMilestone(options, loader.Milestone.Title, loader.IssuePrItemList);
-
+            // Display the changes
+            Console.Out.WriteLine("Generating release notes...");
+            await DisplayIssuesForMilestone(options, loader.Milestone.Title, loader.IssuePrItemList);
+        }
+        finally
+        {
+            if (fileWriter != null)
+            {
+                await fileWriter.FlushAsync();
+                fileWriter.Close();
+                Console.Out.WriteLine("Done.");
+            }
+        }
     }
 
     static async Task DisplayIssuesForMilestone(Options options, string milestone, IssuesPrList issues)
     {
-        Console.WriteLine("## {0}", milestone);
-        Console.WriteLine();
+        Output.WriteLine("## {0}", milestone);
+        Output.WriteLine();
         var closedDoneIssues = issues.Items
             .OrderByDescending(o => o.IssueId)
             .ToList();
-        Console.WriteLine($"There are {closedDoneIssues.Count} issues fixed in this release.");
-        Console.WriteLine();
+        Output.WriteLine($"There are {closedDoneIssues.Count} issues fixed in this release.");
+        Output.WriteLine();
         var processedIssues = new List<IssuePrItem>();
         DisplaySection(options, processedIssues, closedDoneIssues, "### Enhancements", new List<string> { "is:enhancement", "is:idea", "is:feature" });
         // DisplaySection(options, processedIssues, closedDoneIssues, "### New features","is:feature");
@@ -59,23 +123,23 @@ class Program
         var rest = closedDoneIssues.Except(processedIssues).OrderByDescending(o => o.IssueId).ToList();
         if (rest.Any())
         {
-            Console.WriteLine("### Others");
-            Console.WriteLine();
+            Output.WriteLine("### Others");
+            Output.WriteLine();
             DisplayIssuesWithLabel(rest, "", options);
-            Console.WriteLine();
+            Output.WriteLine();
         }
         DisplayBreakingChanges(options, closedDoneIssues);
-        Console.WriteLine();
-        Console.WriteLine("### Acknowledgements");
-        Console.WriteLine();
-        Console.WriteLine("We want to express our heartfelt gratitude to everyone who has contributed to this release\nby reporting bugs, suggesting enhancements, and providing valuable feedback.\nYour efforts help make NUnit better for the entire community.");
-        Console.WriteLine();
-        Console.WriteLine("A special thank you to the following reporters for identifying issues:");
-        Console.WriteLine();
+        Output.WriteLine();
+        Output.WriteLine("### Acknowledgements");
+        Output.WriteLine();
+        Output.WriteLine("We want to express our heartfelt gratitude to everyone who has contributed to this release\nby reporting bugs, suggesting enhancements, and providing valuable feedback.\nYour efforts help make NUnit better for the entire community.");
+        Output.WriteLine();
+        Output.WriteLine("A special thank you to the following reporters for identifying issues:");
+        Output.WriteLine();
         await DisplayReporters(issues);
-        Console.WriteLine();
-        Console.WriteLine("and to the commenters who engaged in discussions and offered further insights:");
-        Console.WriteLine();
+        Output.WriteLine();
+        Output.WriteLine("and to the commenters who engaged in discussions and offered further insights:");
+        Output.WriteLine();
         await DisplayCommenters(issues);
 
 
@@ -92,7 +156,7 @@ class Program
         }
 
         var listOfReporters = GenerateReporterTable(reporterList);
-        Console.WriteLine(listOfReporters);
+        Output.WriteLine(listOfReporters);
     }
 
     public static string GenerateReporterTable(List<UserName> reporters)
@@ -144,7 +208,7 @@ class Program
         }
 
         var listOfCommenters = GenerateReporterTable(commenterList);
-        Console.WriteLine(listOfCommenters);
+        Output.WriteLine(listOfCommenters);
 
     }
 
@@ -152,8 +216,8 @@ class Program
 
     private static void DisplaySection(Options options, List<IssuePrItem> processedIssues, List<IssuePrItem> closedDoneIssues, string header, IEnumerable<string> searchTerms)
     {
-        Console.WriteLine(header);
-        Console.WriteLine();
+        Output.WriteLine(header);
+        Output.WriteLine();
         int count = 0;
         foreach (var searchTerm in searchTerms)
         {
@@ -161,7 +225,7 @@ class Program
             processedIssues.AddRange(issues);
             count += issues.Count;
         }
-        Console.WriteLine(count == 0 ? "None" : "");
+        Output.WriteLine(count == 0 ? "None" : "");
 
     }
 
@@ -179,7 +243,7 @@ class Program
                 prText = prText.Replace("<", "&lt;").Replace(">", "&gt;");
             }
             string title = issue.Title.Replace("<", "&lt;").Replace(">", "&gt;");
-            Console.WriteLine(options.LinkIssues
+            Output.WriteLine(options.LinkIssues
                 ? $"* [{issue.IssueId:####}]({url}/issues/{issue.IssueId}) {title} {prText}"
                 : $"* {issue.IssueId:####} {issue.Title}");
         }
@@ -199,15 +263,15 @@ class Program
     /// </summary>
     static void DisplayBreakingChanges(Options options, List<IssuePrItem> issues)
     {
-        Console.WriteLine("### The following issues are marked as breaking changes");
-        Console.WriteLine();
+        Output.WriteLine("### The following issues are marked as breaking changes");
+        Output.WriteLine();
 
         var url = $"https://github.com/{options.Organization}/{options.Repository}";
         var breakingIssues = issues.Where(o => o.LabelStartsWith("Breaking")).ToList();
 
         if (breakingIssues.Count == 0)
         {
-            Console.WriteLine("None");
+            Output.WriteLine("None");
             return;
         }
 
@@ -221,20 +285,20 @@ class Program
             }
             string title = issue.Title.Replace("<", "&lt;").Replace(">", "&gt;");
 
-            Console.WriteLine(options.LinkIssues
+            Output.WriteLine(options.LinkIssues
                 ? $"* [{issue.IssueId:####}]({url}/issues/{issue.IssueId}) {title} {prText}"
                 : $"* {issue.IssueId:####} {issue.Title}");
 
             // Check for [!IMPORTANT] content from the issue body or comments
             if (!string.IsNullOrEmpty(issue.ImportantNote))
             {
-                Console.WriteLine();
-                Console.WriteLine("  > [!IMPORTANT]");
+                Output.WriteLine();
+                Output.WriteLine("  > [!IMPORTANT]");
                 foreach (var line in issue.ImportantNote.Split('\n'))
                 {
-                    Console.WriteLine($"  > {line}");
+                    Output.WriteLine($"  > {line}");
                 }
-                Console.WriteLine();
+                Output.WriteLine();
             }
         }
     }

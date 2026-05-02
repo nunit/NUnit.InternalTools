@@ -18,5 +18,8 @@ namespace Alteridem.GetChanges
 
         [Option('m', "milestone", HelpText = "For this given milestone")]
         public string Milestone { get; set; } = "";
+
+        [Option('f', "file", HelpText = "Output file path for the release notes (if not specified, writes to console)")]
+        public string OutputFile { get; set; } = "";
     }
 }
