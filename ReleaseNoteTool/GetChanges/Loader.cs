@@ -54,6 +54,18 @@ internal class Loader(Options options)
             var pr = await Github.GetIssueOrPulLRequest(prNumber);
             issuePr.PullRequest = pr;
             issuePr.PullRequestCommenters = await Github.GetCommentersAsync(prNumber);
+
+            // Get effective author (resolves bot authors to the human who triggered/merged)
+            var (login, name, url, isBot) = await Github.GetEffectivePrAuthor(prNumber);
+            issuePr.PrAuthorNick = login ?? pr.User.Login;
+            issuePr.PrAuthor = name ?? login ?? pr.User.Login;
+            issuePr.PrAuthorUrl = url ?? pr.User.HtmlUrl;
+        }
+
+        // For breaking changes, fetch the [!IMPORTANT] note from body or comments
+        if (issuePr.LabelStartsWith("Breaking"))
+        {
+            issuePr.ImportantNote = await Github.GetImportantNoteAsync(issue.Number, issue.Body);
         }
 
         return issuePr;
@@ -87,13 +99,19 @@ internal class Loader(Options options)
             {
                 IssuePrItemList.Users.Add(issue.Issue.User);
             }
-            // Add PR author
-            if (issue.PullRequest != null)
+            // Add effective PR author (already resolved from bot to human if applicable)
+            if (!string.IsNullOrEmpty(issue.PrAuthorNick))
             {
-                user = IssuePrItemList.Users.FirstOrDefault(u => u.Login == issue.PullRequest.User.Login);
-                if (user == null)
+                // Add to UserNames directly since we already have the info from GraphQL
+                var existingUser = IssuePrItemList.UserNames.FirstOrDefault(u => u.Login == issue.PrAuthorNick);
+                if (existingUser == null)
                 {
-                    IssuePrItemList.Users.Add(issue.PullRequest.User);
+                    IssuePrItemList.UserNames.Add(new UserName
+                    {
+                        Login = issue.PrAuthorNick,
+                        Name = issue.PrAuthor,
+                        HtmlUrl = issue.PrAuthorUrl
+                    });
                 }
             }
             // Add commenters
@@ -180,11 +198,13 @@ internal class Loader(Options options)
 
     public void UpdatePrAuthors()
     {
+        // PR authors are now set in LoadIssueWithPr using GetEffectivePrAuthor
+        // This method only fills in missing author info for edge cases
         foreach (var item in IssuePrItemList.Items)
         {
-            if (item.PullRequest != null)
+            if (item.PullRequest != null && string.IsNullOrEmpty(item.PrAuthor))
             {
-                var user = IssuePrItemList.UserNames.FirstOrDefault(u => u.Login == item.PullRequest.User.Login);
+                var user = IssuePrItemList.UserNames.FirstOrDefault(u => u.Login == item.PrAuthorNick);
                 if (user != null)
                 {
                     item.PrAuthor = !string.IsNullOrEmpty(user.Name) ? user.Name : user.Login;

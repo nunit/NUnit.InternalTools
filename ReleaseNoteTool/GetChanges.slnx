@@ -9,6 +9,17 @@
     <File Path="LICENSE" />
     <File Path="README.md" />
   </Folder>
+  <Folder Name="/data/">
+    <File Path="data/changes4.0.md" />
+    <File Path="data/changes4.0.1.md" />
+    <File Path="data/changes4.1.md" />
+    <File Path="data/changes4.2.md" />
+    <File Path="data/changes4.3.md" />
+    <File Path="data/changes4.6.md" />
+    <File Path="data/changes4.6.0.md" />
+    <File Path="data/nunit.issuesPR.4.3.txt" />
+    <File Path="GetChanges/changes.3.14.md" />
+  </Folder>
   <Project Path="GetChanges/GetChanges.csproj" />
   <Project Path="GetChangesTest/GetChangesTest.csproj" />
 </Solution>

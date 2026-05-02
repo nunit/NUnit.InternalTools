@@ -64,7 +64,7 @@ class Program
             DisplayIssuesWithLabel(rest, "", options);
             Console.WriteLine();
         }
-        DisplaySection(options, processedIssues, closedDoneIssues, "### The following issues are marked as breaking changes", new List<string> { "Breaking" });
+        DisplayBreakingChanges(options, closedDoneIssues);
         Console.WriteLine();
         Console.WriteLine("### Acknowledgements");
         Console.WriteLine();
@@ -192,6 +192,51 @@ class Program
         return teammembers.Contains(prItem.PrAuthorNick)
             ? $"Thanks to NUnit Team member [{prItem.PrAuthor}](https://github.com/{prItem.PrAuthorNick}) for [PR {prItem.PrNumber}]({url}/pull/{prItem.PrNumber})"
             : $"Thanks to [{prItem.PrAuthor}](https://github.com/{prItem.PrAuthorNick}) for [PR {prItem.PrNumber}]({url}/pull/{prItem.PrNumber})";
+    }
+
+    /// <summary>
+    /// Displays breaking changes with their [!IMPORTANT] notes from the issue body
+    /// </summary>
+    static void DisplayBreakingChanges(Options options, List<IssuePrItem> issues)
+    {
+        Console.WriteLine("### The following issues are marked as breaking changes");
+        Console.WriteLine();
+
+        var url = $"https://github.com/{options.Organization}/{options.Repository}";
+        var breakingIssues = issues.Where(o => o.LabelStartsWith("Breaking")).ToList();
+
+        if (breakingIssues.Count == 0)
+        {
+            Console.WriteLine("None");
+            return;
+        }
+
+        foreach (var issue in breakingIssues)
+        {
+            string prText = "";
+            if (issue.PrNumber > 0)
+            {
+                prText = PullRequestMentions(issue, url);
+                prText = prText.Replace("<", "&lt;").Replace(">", "&gt;");
+            }
+            string title = issue.Title.Replace("<", "&lt;").Replace(">", "&gt;");
+
+            Console.WriteLine(options.LinkIssues
+                ? $"* [{issue.IssueId:####}]({url}/issues/{issue.IssueId}) {title} {prText}"
+                : $"* {issue.IssueId:####} {issue.Title}");
+
+            // Check for [!IMPORTANT] content from the issue body or comments
+            if (!string.IsNullOrEmpty(issue.ImportantNote))
+            {
+                Console.WriteLine();
+                Console.WriteLine("  > [!IMPORTANT]");
+                foreach (var line in issue.ImportantNote.Split('\n'))
+                {
+                    Console.WriteLine($"  > {line}");
+                }
+                Console.WriteLine();
+            }
+        }
     }
 
 }
