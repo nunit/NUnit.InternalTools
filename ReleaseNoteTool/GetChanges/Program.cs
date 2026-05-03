@@ -125,7 +125,7 @@ class Program
         {
             Output.WriteLine("### Others");
             Output.WriteLine();
-            DisplayIssuesWithLabel(rest, "", options);
+            DisplayIssueList(rest, options);
             Output.WriteLine();
         }
         DisplayBreakingChanges(options, closedDoneIssues);
@@ -218,26 +218,27 @@ class Program
     {
         Output.WriteLine(header);
         Output.WriteLine();
-        int count = 0;
-        foreach (var searchTerm in searchTerms)
-        {
-            var issues = DisplayIssuesWithLabel(closedDoneIssues, searchTerm, options).ToList();
-            processedIssues.AddRange(issues);
-            count += issues.Count;
-        }
-        Output.WriteLine(count == 0 ? "None" : "");
 
+        // Collect all matching issues across all search terms, remove duplicates, sort descending
+        var sectionIssues = searchTerms
+            .SelectMany(searchTerm => closedDoneIssues.Where(o => o.LabelStartsWith(searchTerm)))
+            .DistinctBy(o => o.IssueId)
+            .OrderByDescending(o => o.IssueId)
+            .ToList();
+
+        DisplayIssueList(sectionIssues, options);
+        processedIssues.AddRange(sectionIssues);
+
+        Output.WriteLine(sectionIssues.Count == 0 ? "None" : "");
     }
 
-    static IEnumerable<IssuePrItem> DisplayIssuesWithLabel(List<IssuePrItem> issues, string label, Options options)
+    static void DisplayIssueList(List<IssuePrItem> issues, Options options)
     {
         var url = $"https://github.com/{options.Organization}/{options.Repository}";
-        var list = issues.Where(o => o.LabelStartsWith(label)).ToList();
-        foreach (var issue in list)
+        foreach (var issue in issues)
         {
             string prText = "";
-            bool found = issue.PrNumber > 0;
-            if (found)
+            if (issue.PrNumber > 0)
             {
                 prText = PullRequestMentions(issue, url);
                 prText = prText.Replace("<", "&lt;").Replace(">", "&gt;");
@@ -247,7 +248,6 @@ class Program
                 ? $"* [{issue.IssueId:####}]({url}/issues/{issue.IssueId}) {title} {prText}"
                 : $"* {issue.IssueId:####} {issue.Title}");
         }
-        return list;
     }
 
     static string PullRequestMentions(IssuePrItem prItem, string url)
