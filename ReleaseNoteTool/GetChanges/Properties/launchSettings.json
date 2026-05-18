@@ -2,7 +2,7 @@
   "profiles": {
     "GetChanges": {
       "commandName": "Project",
-      "commandLineArgs": " -o nunit -r nunit -l -m 4.6 -f changes4.6.0.md",
+      "commandLineArgs": " -o nunit -r nunit -l -m 4.6.1 -f changes4.6.1.md",
       "workingDirectory": "c:\\repos\\nunit\\nunit.internaltools\\releasenotetool"
     }
   }
