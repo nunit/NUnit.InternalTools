@@ -18,6 +18,7 @@
     <File Path="data/changes4.6.1.md" />
     <File Path="data/changes4.6.md" />
     <File Path="data/changes4.6.0.md" />
+    <File Path="data/changes5.0.0.md" />
     <File Path="data/nunit.issuesPR.4.3.txt" />
     <File Path="GetChanges/changes.3.14.md" />
   </Folder>
